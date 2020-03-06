@@ -5,31 +5,20 @@
  *
  * -------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2018  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
  *
  * This file is part of GNSS-SDR.
  *
- * GNSS-SDR is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * GNSS-SDR is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GNSS-SDR. If not, see <https://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * -------------------------------------------------------------------------
  */
 
-#ifndef GNSS_SDR_MATH_CONSTANTS_H_
-#define GNSS_SDR_MATH_CONSTANTS_H_
+#ifndef GNSS_SDR_MATH_CONSTANTS_H
+#define GNSS_SDR_MATH_CONSTANTS_H
 
 #include <string>
 
@@ -43,8 +32,9 @@
         ONE_PI_TWO_PX = (1/Pi)*2^X
 */
 
-const double PI = 3.1415926535897932;  //!<  pi
-const double PI_2 = 2.0 * PI;          //!<  2 * pi
+const double HALF_PI = 1.570796326794897;  //!< pi/2
+const double PI = 3.1415926535897932;      //!<  pi
+const double PI_2 = 2.0 * PI;              //!<  2 * pi
 
 const double TWO_P3 = (8);                        //!< 2^3
 const double TWO_P4 = (16);                       //!< 2^4
@@ -115,6 +105,7 @@ const double AS2R = (D2R / 3600.0);     //!<  arc sec to radian
 
 const double DEFAULT_OMEGA_EARTH_DOT = 7.2921151467e-5;  //!<  Default Earth rotation rate, [rad/s]
 const double SPEED_OF_LIGHT = 299792458.0;               //!<  [m/s]
+const double SPEED_OF_LIGHT_MS = 299792.4580;            //!<  [m/ms]
 const double AU = 149597870691.0;                        //!<  1 Astronomical Unit AU (m) distance from Earth to the Sun.
 
-#endif /* GNSS_SDR_MATH_CONSTANTS_H_ */
+#endif  // GNSS_SDR_MATH_CONSTANTS_H
