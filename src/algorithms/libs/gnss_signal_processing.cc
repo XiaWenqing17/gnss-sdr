@@ -4,7 +4,6 @@
  *  regardless of system used
  * \author Luis Esteve, 2012. luis(at)epsilon-formacion.com
  *
- * Detailed description of the file here if needed.
  *
  * -------------------------------------------------------------------------
  *
@@ -21,30 +20,30 @@
  */
 
 #include "gnss_signal_processing.h"
-#include "GPS_L1_CA.h"
+#include "MATH_CONSTANTS.h"
 #include <gnuradio/fxpt_nco.h>
 #include <cstddef>  // for size_t
 
 
-auto auxCeil2 = [](float x) { return static_cast<int32_t>(static_cast<int64_t>((x) + 1)); };
+const auto AUX_CEIL2 = [](float x) { return static_cast<int32_t>(static_cast<int64_t>((x) + 1)); };
 
-void complex_exp_gen(gsl::span<std::complex<float>> _dest, double _f, double _fs)
+void complex_exp_gen(own::span<std::complex<float>> _dest, double _f, double _fs)
 {
     gr::fxpt_nco d_nco;
-    d_nco.set_freq((GPS_TWO_PI * _f) / _fs);
+    d_nco.set_freq(static_cast<float>((TWO_PI * _f) / _fs));
     d_nco.sincos(_dest.data(), _dest.size(), 1);
 }
 
 
-void complex_exp_gen_conj(gsl::span<std::complex<float>> _dest, double _f, double _fs)
+void complex_exp_gen_conj(own::span<std::complex<float>> _dest, double _f, double _fs)
 {
     gr::fxpt_nco d_nco;
-    d_nco.set_freq(-(GPS_TWO_PI * _f) / _fs);
+    d_nco.set_freq(-static_cast<float>((TWO_PI * _f) / _fs));
     d_nco.sincos(_dest.data(), _dest.size(), 1);
 }
 
 
-void hex_to_binary_converter(gsl::span<int32_t> _dest, char _from)
+void hex_to_binary_converter(own::span<int32_t> _dest, char _from)
 {
     switch (_from)
         {
@@ -150,20 +149,20 @@ void hex_to_binary_converter(gsl::span<int32_t> _dest, char _from)
 }
 
 
-void resampler(const gsl::span<float> _from, gsl::span<float> _dest, float _fs_in,
+void resampler(const own::span<float> _from, own::span<float> _dest, float _fs_in,
     float _fs_out)
 {
     uint32_t _codeValueIndex;
     float aux;
     // --- Find time constants -------------------------------------------------
-    const float _t_in = 1 / _fs_in;    // Incoming sampling  period in sec
-    const float _t_out = 1 / _fs_out;  // Out sampling period in sec
+    const float _t_in = 1.0F / _fs_in;    // Incoming sampling  period in sec
+    const float _t_out = 1.0F / _fs_out;  // Out sampling period in sec
     for (size_t i = 0; i < _dest.size() - 1; i++)
         {
             // === Digitizing ==================================================
             // --- compute index array to read sampled values ------------------
-            aux = (_t_out * (i + 1)) / _t_in;
-            _codeValueIndex = auxCeil2(aux) - 1;
+            aux = (_t_out * (static_cast<float>(i) + 1.0F)) / _t_in;
+            _codeValueIndex = AUX_CEIL2(aux) - 1;
 
             // if repeat the chip -> upsample by nearest neighborhood interpolation
             _dest[i] = _from[_codeValueIndex];
@@ -173,20 +172,20 @@ void resampler(const gsl::span<float> _from, gsl::span<float> _dest, float _fs_i
 }
 
 
-void resampler(gsl::span<const std::complex<float>> _from, gsl::span<std::complex<float>> _dest, float _fs_in,
+void resampler(own::span<const std::complex<float>> _from, own::span<std::complex<float>> _dest, float _fs_in,
     float _fs_out)
 {
     uint32_t _codeValueIndex;
     float aux;
     // --- Find time constants -------------------------------------------------
-    const float _t_in = 1 / _fs_in;    // Incoming sampling  period in sec
-    const float _t_out = 1 / _fs_out;  // Out sampling period in sec
+    const float _t_in = 1.0F / _fs_in;    // Incoming sampling  period in sec
+    const float _t_out = 1.0F / _fs_out;  // Out sampling period in sec
     for (size_t i = 0; i < _dest.size() - 1; i++)
         {
             // === Digitizing ==================================================
             // --- compute index array to read sampled values ------------------
-            aux = (_t_out * (i + 1)) / _t_in;
-            _codeValueIndex = auxCeil2(aux) - 1;
+            aux = (_t_out * (static_cast<float>(i) + 1.0F)) / _t_in;
+            _codeValueIndex = AUX_CEIL2(aux) - 1;
 
             // if repeat the chip -> upsample by nearest neighborhood interpolation
             _dest[i] = _from[_codeValueIndex];

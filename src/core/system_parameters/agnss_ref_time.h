@@ -31,15 +31,16 @@
 class Agnss_Ref_Time
 {
 public:
-    bool valid;
-    double d_TOW;
-    double d_Week;
-    double d_tv_sec;
-    double d_tv_usec;
     /*!
      * Default constructor
      */
-    Agnss_Ref_Time();
+    Agnss_Ref_Time() = default;
+
+    double d_TOW{};
+    double d_Week{};
+    double d_tv_sec{};
+    double d_tv_usec{};
+    bool valid{};
 
     template <class Archive>
 
@@ -52,11 +53,11 @@ public:
         if (version)
             {
             };
-        archive& make_nvp("valid", valid);
         archive& make_nvp("d_TOW", d_TOW);
         archive& make_nvp("d_Week", d_Week);
         archive& make_nvp("d_tv_sec", d_tv_sec);
         archive& make_nvp("d_tv_usec", d_tv_usec);
+        archive& make_nvp("valid", valid);
     }
 };
 

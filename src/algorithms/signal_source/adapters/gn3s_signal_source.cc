@@ -24,8 +24,11 @@
 #include <gn3s/gn3s_source_cc.h>
 
 
-Gn3sSignalSource::Gn3sSignalSource(ConfigurationInterface* configuration,
-    std::string role, unsigned int in_stream, unsigned int out_stream, std::shared_ptr<Concurrent_Queue<pmt::pmt_t>> queue) : role_(role), in_stream_(in_stream), out_stream_(out_stream), queue_(queue)
+Gn3sSignalSource::Gn3sSignalSource(const ConfigurationInterface* configuration,
+    std::string role,
+    unsigned int in_stream,
+    unsigned int out_stream,
+    Concurrent_Queue<pmt::pmt_t>* queue) : role_(role), in_stream_(in_stream), out_stream_(out_stream)
 {
     std::string default_item_type = "short";
     std::string default_dump_file = "./data/gn3s_source.dat";

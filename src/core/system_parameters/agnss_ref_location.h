@@ -31,14 +31,15 @@
 class Agnss_Ref_Location
 {
 public:
-    bool valid;
-    double lat;
-    double lon;
-    double uncertainty;
     /*!
      * Default constructor
      */
-    Agnss_Ref_Location();
+    Agnss_Ref_Location() = default;
+
+    double lat{};
+    double lon{};
+    double uncertainty{};
+    bool valid{};
 
     template <class Archive>
 
@@ -51,10 +52,10 @@ public:
         if (version)
             {
             };
-        archive& make_nvp("valid", valid);
         archive& make_nvp("lat", lat);
         archive& make_nvp("lon", lon);
         archive& make_nvp("uncertainty", uncertainty);
+        archive& make_nvp("valid", valid);
     }
 };
 

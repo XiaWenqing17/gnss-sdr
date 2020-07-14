@@ -27,14 +27,11 @@
 #include <utility>
 
 
-FlexibandSignalSource::FlexibandSignalSource(ConfigurationInterface* configuration,
+FlexibandSignalSource::FlexibandSignalSource(const ConfigurationInterface* configuration,
     const std::string& role,
     unsigned int in_stream,
     unsigned int out_stream,
-    std::shared_ptr<Concurrent_Queue<pmt::pmt_t>> queue) : role_(role),
-                                                           in_stream_(in_stream),
-                                                           out_stream_(out_stream),
-                                                           queue_(std::move(queue))
+    Concurrent_Queue<pmt::pmt_t>* queue __attribute__((unused))) : role_(role), in_stream_(in_stream), out_stream_(out_stream)
 {
     std::string default_item_type = "byte";
     item_type_ = configuration->property(role + ".item_type", default_item_type);

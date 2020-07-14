@@ -22,7 +22,6 @@
 
 #include "concurrent_queue.h"
 #include "glonass_l1_ca_dll_pll_c_aid_tracking.h"
-#include "gnss_block_factory.h"
 #include "gnss_block_interface.h"
 #include "gnss_sdr_valve.h"
 #include "gnss_synchro.h"
@@ -35,6 +34,10 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include <utility>
+#if HAS_GENERIC_LAMBDA
+#else
+#include <boost/bind/bind.hpp>
+#endif
 
 // ######## GNURADIO BLOCK MESSAGE RECEVER #########
 class GlonassL1CaDllPllCAidTrackingTest_msg_rx;
@@ -81,7 +84,16 @@ void GlonassL1CaDllPllCAidTrackingTest_msg_rx::msg_handler_events(pmt::pmt_t msg
 GlonassL1CaDllPllCAidTrackingTest_msg_rx::GlonassL1CaDllPllCAidTrackingTest_msg_rx() : gr::block("GlonassL1CaDllPllCAidTrackingTest_msg_rx", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0))
 {
     this->message_port_register_in(pmt::mp("events"));
-    this->set_msg_handler(pmt::mp("events"), boost::bind(&GlonassL1CaDllPllCAidTrackingTest_msg_rx::msg_handler_events, this, _1));
+    this->set_msg_handler(pmt::mp("events"),
+#if HAS_GENERIC_LAMBDA
+        [this](auto&& PH1) { msg_handler_events(PH1); });
+#else
+#if USE_BOOST_BIND_PLACEHOLDERS
+        boost::bind(&GlonassL1CaDllPllCAidTrackingTest_msg_rx::msg_handler_events, this, boost::placeholders::_1));
+#else
+        boost::bind(&GlonassL1CaDllPllCAidTrackingTest_msg_rx::msg_handler_events, this, _1));
+#endif
+#endif
     rx_message = 0;
 }
 
@@ -96,7 +108,6 @@ class GlonassL1CaDllPllCAidTrackingTest : public ::testing::Test
 protected:
     GlonassL1CaDllPllCAidTrackingTest()
     {
-        factory = std::make_shared<GNSSBlockFactory>();
         config = std::make_shared<InMemoryConfiguration>();
         item_size = sizeof(gr_complex);
         gnss_synchro = Gnss_Synchro();
@@ -108,7 +119,6 @@ protected:
 
     std::shared_ptr<Concurrent_Queue<pmt::pmt_t>> queue;
     gr::top_block_sptr top_block;
-    std::shared_ptr<GNSSBlockFactory> factory;
     std::shared_ptr<InMemoryConfiguration> config;
     Gnss_Synchro gnss_synchro;
     size_t item_size;
@@ -170,7 +180,7 @@ TEST_F(GlonassL1CaDllPllCAidTrackingTest, ValidationOfResults)
         std::string file = path + "signal_samples/NT1065_GLONASS_L1_20160831_fs6625e6_if0e3_4ms.bin";
         const char* file_name = file.c_str();
         gr::blocks::file_source::sptr file_source = gr::blocks::file_source::make(sizeof(gr_complex), file_name, false);
-        auto valve = gnss_sdr_make_valve(sizeof(gr_complex), nsamples, queue);
+        auto valve = gnss_sdr_make_valve(sizeof(gr_complex), nsamples, queue.get());
         gr::blocks::null_sink::sptr sink = gr::blocks::null_sink::make(sizeof(Gnss_Synchro));
         top_block->connect(file_source, 0, valve, 0);
         top_block->connect(valve, 0, tracking->get_left_block(), 0);
@@ -188,5 +198,5 @@ TEST_F(GlonassL1CaDllPllCAidTrackingTest, ValidationOfResults)
     }) << "Failure running the top_block.";
 
     // TODO: Verify tracking results
-    std::cout << "Tracked " << nsamples << " samples in " << elapsed_seconds.count() * 1e6 << " microseconds" << std::endl;
+    std::cout << "Tracked " << nsamples << " samples in " << elapsed_seconds.count() * 1e6 << " microseconds\n";
 }
