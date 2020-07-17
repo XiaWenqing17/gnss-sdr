@@ -35,6 +35,11 @@ SPDX-FileCopyrightText: 2011-2020 Carles Fernandez-Prades <carles.fernandez@cttc
   it along the source code.
 - Private members in headers have been sorted by type and size, minimizing
   padding space in the stack and making the files more readable for humans.
+- Simpler, less error-prone design of the `GNSSBlockFactory` class public API
+  and internal implementation.
+- Simpler API for the `Pvt_Solution` class.
+- Improved system constant definition headers, numerical values are only written
+  once.
 - The software can now be built against the GNU Radio 3.9 API that uses standard
   library's smart pointers instead of Boost's. Minimum GNU Radio required
   version still remains at 3.7.3.
@@ -66,7 +71,7 @@ SPDX-FileCopyrightText: 2011-2020 Carles Fernandez-Prades <carles.fernandez@cttc
 
 - Fixed a bug in GLONASS GNAV CRC computation.
 - Fixed a possible buffer overflow in the generation of RTCM messages.
-- Fixed a bug that could cause a random crash on receiver stopping.
+- Fixed bugs which could cause a random crash on receiver stopping.
 
 ### Improvements in Reproducibility:
 
@@ -100,7 +105,10 @@ SPDX-FileCopyrightText: 2011-2020 Carles Fernandez-Prades <carles.fernandez@cttc
   samples parameter ignored when too large (that is, when set larger than
   2^31-1). Now the `samples` parameter accepts values up to 2^64-1, that is,
   18,446,744,073,709,551,615 samples.
-- Updated version of the Contributor Covenant to version 2.0.
+- Fixed a bug in the forwarding of NMEA messages to a serial port (configuration
+  of the `PVT.nmea_dump_devname` parameter was ignored).
+- Updated version of the Contributor Covenant to version 2.0. Added badge in the
+  README.md file.
 
 &nbsp;
 

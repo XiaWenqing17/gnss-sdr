@@ -3,7 +3,10 @@
  * \brief signal source for Analog Devices front-end AD9361 connected directly to FPGA accelerators.
  * This source implements only the AD9361 control. It is NOT compatible with conventional SDR acquisition and tracking blocks.
  * Please use the fmcomms2 source if conventional SDR acquisition and tracking is selected in the configuration file.
- * \author Javier Arribas, jarribas(at)cttc.es
+ * \authors <ul>
+ *          <li> Javier Arribas, jarribas(at)cttc.es
+ *          <li> Marc Majoral, mmajoral(at)cttc.es
+ *          </ul>
  *
  * -------------------------------------------------------------------------
  *
@@ -45,12 +48,12 @@ Ad9361FpgaSignalSource::Ad9361FpgaSignalSource(const ConfigurationInterface *con
     const std::string &role, unsigned int in_stream, unsigned int out_stream,
     Concurrent_Queue<pmt::pmt_t> *queue __attribute__((unused))) : role_(role), in_stream_(in_stream), out_stream_(out_stream)
 {
-    std::string default_gain_mode("slow_attack");
-    double default_tx_attenuation_db = -10.0;
-    double default_manual_gain_rx1 = 64.0;
-    double default_manual_gain_rx2 = 64.0;
-    uint64_t default_bandwidth = 12500000;
-    std::string default_rf_port_select("A_BALANCED");
+    const std::string default_gain_mode("slow_attack");
+    const double default_tx_attenuation_db = -10.0;
+    const double default_manual_gain_rx1 = 64.0;
+    const double default_manual_gain_rx2 = 64.0;
+    const uint64_t default_bandwidth = 12500000;
+    const std::string default_rf_port_select("A_BALANCED");
     freq_ = configuration->property(role + ".freq", static_cast<uint64_t>(GPS_L1_FREQ_HZ));
     sample_rate_ = configuration->property(role + ".sampling_frequency", static_cast<uint64_t>(12500000));
     bandwidth_ = configuration->property(role + ".bandwidth", default_bandwidth);
@@ -88,7 +91,7 @@ Ad9361FpgaSignalSource::Ad9361FpgaSignalSource(const ConfigurationInterface *con
     rf_shutdown_ = configuration->property(role + ".rf_shutdown", FLAGS_rf_shutdown);
 
     // turn switch to A/D position
-    std::string default_device_name = "/dev/uio1";
+    const std::string default_device_name("/dev/uio1");
     std::string device_name = configuration->property(role + ".devicename", default_device_name);
     switch_position = configuration->property(role + ".switch_position", 0);
     if (switch_position != 0 && switch_position != 2)
@@ -108,7 +111,7 @@ Ad9361FpgaSignalSource::Ad9361FpgaSignalSource(const ConfigurationInterface *con
     if (switch_position == 0)  // Inject file(s) via DMA
         {
             enable_DMA_ = true;
-            std::string empty_string;
+            const std::string empty_string;
             filename_rx1 = configuration->property(role + ".filename", empty_string);
 
             // override value with commandline flag, if present
@@ -126,12 +129,12 @@ Ad9361FpgaSignalSource::Ad9361FpgaSignalSource(const ConfigurationInterface *con
                     filename_rx1 = configuration->property(role + ".filename0", empty_string);
                     filename_rx2 = configuration->property(role + ".filename1", empty_string);
                 }
-            int l1_band = configuration->property("Channels_1C.count", 0) +
-                          configuration->property("Channels_1B.count", 0);
+            const int l1_band = configuration->property("Channels_1C.count", 0) +
+                                configuration->property("Channels_1B.count", 0);
 
-            int l2_band = configuration->property("Channels_L5.count", 0) +
-                          configuration->property("Channels_5X.count", 0) +
-                          configuration->property("Channels_2S.count", 0);
+            const int l2_band = configuration->property("Channels_L5.count", 0) +
+                                configuration->property("Channels_5X.count", 0) +
+                                configuration->property("Channels_2S.count", 0);
 
             if (l1_band != 0)
                 {
@@ -288,6 +291,18 @@ Ad9361FpgaSignalSource::Ad9361FpgaSignalSource(const ConfigurationInterface *con
                 }
         }
 
+    // dynamic bits selection
+    enable_dynamic_bit_selection_ = configuration->property(role + ".enable_dynamic_bit_selection", true);
+    if (enable_dynamic_bit_selection_)
+        {
+            const std::string dynamic_bit_selection_default_device_name1("/dev/uio48");
+            std::string device_name1 = configuration->property(role + ".dyn_bits_sel_devicename", dynamic_bit_selection_default_device_name1);
+            const std::string dynamic_bit_selection_default_device_name2("/dev/uio49");
+            std::string device_name2 = configuration->property(role + ".dyn_bits_sel_devicename", dynamic_bit_selection_default_device_name2);
+            dynamic_bit_selection_fpga = std::make_shared<Fpga_dynamic_bit_selection>(device_name1, device_name2);
+            thread_dynamic_bit_selection = std::thread([&] { run_dynamic_bit_selection_process(); });
+        }
+
     if (in_stream_ > 0)
         {
             LOG(ERROR) << "A signal source does not have an input stream";
@@ -333,6 +348,22 @@ Ad9361FpgaSignalSource::~Ad9361FpgaSignalSource()
                                     LOG(WARNING) << "Problem shutting down the AD9361 TX stream: " << e.what();
                                 }
                         }
+                }
+        }
+
+    std::unique_lock<std::mutex> lock(dynamic_bit_selection_mutex);
+    bool bit_selection_enabled = enable_dynamic_bit_selection_;
+    lock.unlock();
+
+    if (bit_selection_enabled == true)
+        {
+            std::unique_lock<std::mutex> lock(dynamic_bit_selection_mutex);
+            enable_dynamic_bit_selection_ = false;
+            lock.unlock();
+
+            if (thread_dynamic_bit_selection.joinable())
+                {
+                    thread_dynamic_bit_selection.join();
                 }
         }
 }
@@ -542,7 +573,7 @@ void Ad9361FpgaSignalSource::run_DMA_process(const std::string &FreqBand, const 
                     int num_bytes_sent = write(tx_fd, input_samples_dma.data(), nread_elements * 2);
                     if (num_bytes_sent != num_transferred_bytes)
                         {
-                            std::cerr << "Error: DMA could not send all the required samples \n";
+                            std::cerr << "Error: DMA could not send all the required samples\n";
                         }
 
                     // Throttle the DMA
@@ -573,6 +604,25 @@ void Ad9361FpgaSignalSource::run_DMA_process(const std::string &FreqBand, const 
     catch (const std::ifstream::failure &e)
         {
             std::cerr << "Exception closing files " << Filename1 << " and " << Filename2 << '\n';
+        }
+}
+
+
+void Ad9361FpgaSignalSource::run_dynamic_bit_selection_process(void)
+{
+    bool dynamic_bit_selection_active = true;
+
+    while (dynamic_bit_selection_active)
+        {
+            // setting the bit selection to the top bits
+            dynamic_bit_selection_fpga->bit_selection();
+            std::this_thread::sleep_for(std::chrono::milliseconds(Gain_control_period_ms));
+            std::unique_lock<std::mutex> lock(dynamic_bit_selection_mutex);
+            if (enable_dynamic_bit_selection_ == false)
+                {
+                    dynamic_bit_selection_active = false;
+                }
+            lock.unlock();
         }
 }
 

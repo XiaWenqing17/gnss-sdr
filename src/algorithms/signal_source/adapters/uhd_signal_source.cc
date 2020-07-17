@@ -34,9 +34,9 @@ UhdSignalSource::UhdSignalSource(const ConfigurationInterface* configuration,
     Concurrent_Queue<pmt::pmt_t>* queue) : role_(role), in_stream_(in_stream), out_stream_(out_stream)
 {
     // DUMP PARAMETERS
-    std::string empty;
+    const std::string empty;
     const std::string default_dump_file("./data/signal_source.dat");
-    std::string default_item_type = "cshort";
+    const std::string default_item_type("cshort");
 
     // UHD COMMON PARAMETERS
     uhd::device_addr_t dev_addr;
@@ -254,6 +254,7 @@ void UhdSignalSource::connect(gr::top_block_sptr top_block)
 
 void UhdSignalSource::disconnect(gr::top_block_sptr top_block)
 {
+    uhd_source_->stop();
     for (int i = 0; i < RF_channels_; i++)
         {
             if (samples_.at(i) != 0ULL)
