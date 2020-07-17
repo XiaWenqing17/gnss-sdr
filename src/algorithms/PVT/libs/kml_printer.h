@@ -23,10 +23,9 @@
 #define GNSS_SDR_KML_PRINTER_H
 
 #include <fstream>  // for ofstream
-#include <memory>   // for shared_ptr
 #include <string>
 
-class Rtklib_Solver;
+class Pvt_Solution;
 
 /*!
  * \brief Prints PVT information to OGC KML format file (can be viewed with Google Earth)
@@ -39,18 +38,18 @@ public:
     explicit Kml_Printer(const std::string& base_path = std::string("."));
     ~Kml_Printer();
     bool set_headers(const std::string& filename, bool time_tag_name = true);
-    bool print_position(const std::shared_ptr<Rtklib_Solver>& position, bool print_average_values);
+    bool print_position(const Pvt_Solution* position, bool print_average_values);
     bool close_file();
 
 private:
     std::ofstream kml_file;
     std::ofstream tmp_file;
-    bool positions_printed;
     std::string kml_filename;
     std::string kml_base_path;
     std::string tmp_file_str;
-    unsigned int point_id;
     std::string indent;
+    unsigned int point_id;
+    bool positions_printed;
 };
 
 #endif

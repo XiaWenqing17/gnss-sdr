@@ -22,66 +22,15 @@
 #include "gnss_satellite.h"
 #include <cmath>
 
+
 Beidou_Dnav_Ephemeris::Beidou_Dnav_Ephemeris()
 {
-    i_satellite_PRN = 0;
-    d_TOW = 0;
-    d_Crs = 0;
-    d_Delta_n = 0;
-    d_M_0 = 0;
-    d_Cuc = 0;
-    d_eccentricity = 0;
-    d_Cus = 0;
-    d_sqrt_A = 0;
-    d_Toe = 0;
-    d_Toc = 0;
-    d_Cic = 0;
-    d_OMEGA0 = 0;
-    d_Cis = 0;
-    d_i_0 = 0;
-    d_Crc = 0;
-    d_OMEGA = 0;
-    d_OMEGA_DOT = 0;
-    d_IDOT = 0;
-    i_BEIDOU_week = 0;
-    i_SV_accuracy = 0;
-    i_SV_health = 0;
-    d_AODE = 0;
-    d_TGD1 = 0;
-    d_TGD2 = 0;
-    d_AODC = 0;  // Issue of Data, Clock
-    i_AODO = 0;  // Age of Data Offset (AODO) term for the navigation message correction table (NMCT) contained in subframe 4 (reference paragraph 20.3.3.5.1.9) [s]
-    d_AODC = 0;
-    b_fit_interval_flag = false;
-    d_spare1 = 0.0;
-    d_spare2 = 0.0;
-
-    i_sig_type = 0;
-    i_nav_type = 0;
-
-    d_A_f0 = 0;  // Coefficient 0 of code phase offset model [s]
-    d_A_f1 = 0;  // Coefficient 1 of code phase offset model [s/s]
-    d_A_f2 = 0;  // Coefficient 2 of code phase offset model [s/s^2]
-
-    b_integrity_status_flag = false;
-    b_alert_flag = false;         // If true, indicates  that the SV URA may be worse than indicated in d_SV_accuracy, use that SV at our own risk.
-    b_antispoofing_flag = false;  //  If true, the AntiSpoofing mode is ON in that SV
-
     auto gnss_sat = Gnss_Satellite();
     std::string _system("Beidou");
     for (unsigned int i = 1; i < 36; i++)
         {
             satelliteBlock[i] = gnss_sat.what_block(_system, i);
         }
-
-    d_satClkDrift = 0.0;
-    d_dtr = 0.0;
-    d_satpos_X = 0.0;
-    d_satpos_Y = 0.0;
-    d_satpos_Z = 0.0;
-    d_satvel_X = 0.0;
-    d_satvel_Y = 0.0;
-    d_satvel_Z = 0.0;
 }
 
 
@@ -136,14 +85,14 @@ double Beidou_Dnav_Ephemeris::sv_clock_relativistic_term(double transmitTime)
     tk = check_t(transmitTime - d_Toe);
 
     // Computed mean motion
-    n0 = sqrt(BEIDOU_DNAV_GM / (a * a * a));
+    n0 = sqrt(BEIDOU_GM / (a * a * a));
     // Corrected mean motion
     n = n0 + d_Delta_n;
     // Mean anomaly
     M = d_M_0 + n * tk;
 
     // Reduce mean anomaly to between 0 and 2pi
-    M = fmod((M + 2.0 * BEIDOU_DNAV_PI), (2.0 * BEIDOU_DNAV_PI));
+    M = fmod((M + 2.0 * GNSS_PI), (2.0 * GNSS_PI));
 
     // Initial guess of eccentric anomaly
     E = M;
@@ -153,7 +102,7 @@ double Beidou_Dnav_Ephemeris::sv_clock_relativistic_term(double transmitTime)
         {
             E_old = E;
             E = M + d_eccentricity * sin(E);
-            dE = fmod(E - E_old, 2.0 * BEIDOU_DNAV_PI);
+            dE = fmod(E - E_old, 2.0 * GNSS_PI);
             if (fabs(dE) < 1e-12)
                 {
                     // Necessary precision is reached, exit from the loop
@@ -162,7 +111,7 @@ double Beidou_Dnav_Ephemeris::sv_clock_relativistic_term(double transmitTime)
         }
 
     // Compute relativistic correction term
-    d_dtr = BEIDOU_DNAV_F * d_eccentricity * d_sqrt_A * sin(E);
+    d_dtr = BEIDOU_F * d_eccentricity * d_sqrt_A * sin(E);
     return d_dtr;
 }
 
@@ -193,7 +142,7 @@ double Beidou_Dnav_Ephemeris::satellitePosition(double transmitTime)
     tk = check_t(transmitTime - d_Toe);
 
     // Computed mean motion
-    n0 = sqrt(BEIDOU_DNAV_GM / (a * a * a));
+    n0 = sqrt(BEIDOU_GM / (a * a * a));
 
     // Corrected mean motion
     n = n0 + d_Delta_n;
@@ -202,7 +151,7 @@ double Beidou_Dnav_Ephemeris::satellitePosition(double transmitTime)
     M = d_M_0 + n * tk;
 
     // Reduce mean anomaly to between 0 and 2pi
-    M = fmod((M + 2.0 * BEIDOU_DNAV_PI), (2.0 * BEIDOU_DNAV_PI));
+    M = fmod((M + 2.0 * GNSS_PI), (2.0 * GNSS_PI));
 
     // Initial guess of eccentric anomaly
     E = M;
@@ -212,7 +161,7 @@ double Beidou_Dnav_Ephemeris::satellitePosition(double transmitTime)
         {
             E_old = E;
             E = M + d_eccentricity * sin(E);
-            dE = fmod(E - E_old, 2.0 * BEIDOU_DNAV_PI);
+            dE = fmod(E - E_old, 2.0 * GNSS_PI);
             if (fabs(dE) < 1e-12)
                 {
                     // Necessary precision is reached, exit from the loop
@@ -229,7 +178,7 @@ double Beidou_Dnav_Ephemeris::satellitePosition(double transmitTime)
     phi = nu + d_OMEGA;
 
     // Reduce phi to between 0 and 2*pi rad
-    phi = fmod((phi), (2.0 * BEIDOU_DNAV_PI));
+    phi = fmod((phi), (2.0 * GNSS_PI));
 
     // Correct argument of latitude
     u = phi + d_Cuc * cos(2.0 * phi) + d_Cus * sin(2.0 * phi);
@@ -241,10 +190,10 @@ double Beidou_Dnav_Ephemeris::satellitePosition(double transmitTime)
     i = d_i_0 + d_IDOT * tk + d_Cic * cos(2.0 * phi) + d_Cis * sin(2.0 * phi);
 
     // Compute the angle between the ascending node and the Greenwich meridian
-    Omega = d_OMEGA0 + (d_OMEGA_DOT - BEIDOU_DNAV_OMEGA_EARTH_DOT) * tk - BEIDOU_DNAV_OMEGA_EARTH_DOT * d_Toe;
+    Omega = d_OMEGA0 + (d_OMEGA_DOT - BEIDOU_OMEGA_EARTH_DOT) * tk - BEIDOU_OMEGA_EARTH_DOT * d_Toe;
 
     // Reduce to between 0 and 2*pi rad
-    Omega = fmod((Omega + 2.0 * BEIDOU_DNAV_PI), (2.0 * BEIDOU_DNAV_PI));
+    Omega = fmod((Omega + 2.0 * GNSS_PI), (2.0 * GNSS_PI));
 
     // --- Compute satellite coordinates in Earth-fixed coordinates
     d_satpos_X = cos(u) * r * cos(Omega) - sin(u) * r * cos(i) * sin(Omega);
@@ -252,7 +201,7 @@ double Beidou_Dnav_Ephemeris::satellitePosition(double transmitTime)
     d_satpos_Z = sin(u) * r * sin(i);
 
     // Satellite's velocity. Can be useful for Vector Tracking loops
-    double Omega_dot = d_OMEGA_DOT - BEIDOU_DNAV_OMEGA_EARTH_DOT;
+    double Omega_dot = d_OMEGA_DOT - BEIDOU_OMEGA_EARTH_DOT;
     d_satvel_X = -Omega_dot * (cos(u) * r + sin(u) * r * cos(i)) + d_satpos_X * cos(Omega) - d_satpos_Y * cos(i) * sin(Omega);
     d_satvel_Y = Omega_dot * (cos(u) * r * cos(Omega) - sin(u) * r * cos(i) * sin(Omega)) + d_satpos_X * sin(Omega) + d_satpos_Y * cos(i) * cos(Omega);
     d_satvel_Z = d_satpos_Y * sin(i);
@@ -263,7 +212,7 @@ double Beidou_Dnav_Ephemeris::satellitePosition(double transmitTime)
     double dtr_s = d_A_f0 + d_A_f1 * tk + d_A_f2 * tk * tk;
 
     /* relativity correction */
-    dtr_s -= 2.0 * sqrt(BEIDOU_DNAV_GM * a) * d_eccentricity * sin(E) / (BEIDOU_DNAV_C_M_S * BEIDOU_DNAV_C_M_S);
+    dtr_s -= 2.0 * sqrt(BEIDOU_GM * a) * d_eccentricity * sin(E) / (SPEED_OF_LIGHT_M_S * SPEED_OF_LIGHT_M_S);
 
     return dtr_s;
 }

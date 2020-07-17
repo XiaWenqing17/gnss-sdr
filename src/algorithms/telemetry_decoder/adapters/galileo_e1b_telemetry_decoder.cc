@@ -25,14 +25,15 @@
 #include <glog/logging.h>
 
 
-GalileoE1BTelemetryDecoder::GalileoE1BTelemetryDecoder(ConfigurationInterface* configuration,
+GalileoE1BTelemetryDecoder::GalileoE1BTelemetryDecoder(
+    const ConfigurationInterface* configuration,
     const std::string& role,
     unsigned int in_streams,
     unsigned int out_streams) : role_(role),
                                 in_streams_(in_streams),
                                 out_streams_(out_streams)
 {
-    std::string default_dump_filename = "./navigation.dat";
+    const std::string default_dump_filename("./navigation.dat");
     DLOG(INFO) << "role " << role;
     dump_ = configuration->property(role + ".dump", false);
     dump_filename_ = configuration->property(role + ".dump_filename", default_dump_filename);

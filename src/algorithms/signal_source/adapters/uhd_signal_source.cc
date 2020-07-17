@@ -29,14 +29,14 @@
 #include <utility>
 
 
-UhdSignalSource::UhdSignalSource(ConfigurationInterface* configuration,
+UhdSignalSource::UhdSignalSource(const ConfigurationInterface* configuration,
     const std::string& role, unsigned int in_stream, unsigned int out_stream,
-    std::shared_ptr<Concurrent_Queue<pmt::pmt_t>> queue) : role_(role), in_stream_(in_stream), out_stream_(out_stream), queue_(std::move(queue))
+    Concurrent_Queue<pmt::pmt_t>* queue) : role_(role), in_stream_(in_stream), out_stream_(out_stream)
 {
     // DUMP PARAMETERS
-    std::string empty = "";
-    std::string default_dump_file = "./data/signal_source.dat";
-    std::string default_item_type = "cshort";
+    const std::string empty;
+    const std::string default_dump_file("./data/signal_source.dat");
+    const std::string default_item_type("cshort");
 
     // UHD COMMON PARAMETERS
     uhd::device_addr_t dev_addr;
@@ -149,30 +149,30 @@ UhdSignalSource::UhdSignalSource(ConfigurationInterface* configuration,
     // 2.2 set the sample rate for the usrp device
     uhd_source_->set_samp_rate(sample_rate_);
     // the actual sample rate may differ from the rate set
-    std::cout << boost::format("Sampling Rate for the USRP device: %f [sps]...") % (uhd_source_->get_samp_rate()) << std::endl;
+    std::cout << boost::format("Sampling Rate for the USRP device: %f [sps]...") % (uhd_source_->get_samp_rate()) << '\n';
     LOG(INFO) << boost::format("Sampling Rate for the USRP device: %f [sps]...") % (uhd_source_->get_samp_rate());
 
     std::vector<std::string> sensor_names;
 
     for (int i = 0; i < RF_channels_; i++)
         {
-            std::cout << "UHD RF CHANNEL #" << i << " SETTINGS" << std::endl;
+            std::cout << "UHD RF CHANNEL #" << i << " SETTINGS\n";
             // 3. Tune the usrp device to the desired center frequency
             uhd_source_->set_center_freq(freq_.at(i), i);
-            std::cout << boost::format("Actual USRP center freq.: %f [Hz]...") % (uhd_source_->get_center_freq(i)) << std::endl;
+            std::cout << boost::format("Actual USRP center freq.: %f [Hz]...") % (uhd_source_->get_center_freq(i)) << '\n';
             LOG(INFO) << boost::format("Actual USRP center freq. set to: %f [Hz]...") % (uhd_source_->get_center_freq(i));
 
             // TODO: Assign the remnant IF from the PLL tune error
-            std::cout << boost::format("PLL Frequency tune error %f [Hz]...") % (uhd_source_->get_center_freq(i) - freq_.at(i)) << std::endl;
+            std::cout << boost::format("PLL Frequency tune error %f [Hz]...") % (uhd_source_->get_center_freq(i) - freq_.at(i)) << '\n';
             LOG(INFO) << boost::format("PLL Frequency tune error %f [Hz]...") % (uhd_source_->get_center_freq(i) - freq_.at(i));
 
             // 4. set the gain for the daughterboard
             uhd_source_->set_gain(gain_.at(i), i);
-            std::cout << boost::format("Actual daughterboard gain set to: %f dB...") % uhd_source_->get_gain(i) << std::endl;
+            std::cout << boost::format("Actual daughterboard gain set to: %f dB...") % uhd_source_->get_gain(i) << '\n';
             LOG(INFO) << boost::format("Actual daughterboard gain set to: %f dB...") % uhd_source_->get_gain(i);
 
             // 5.  Set the bandpass filter on the RF frontend
-            std::cout << boost::format("Setting RF bandpass filter bandwidth to: %f [Hz]...") % IF_bandwidth_hz_.at(i) << std::endl;
+            std::cout << boost::format("Setting RF bandpass filter bandwidth to: %f [Hz]...") % IF_bandwidth_hz_.at(i) << '\n';
             uhd_source_->set_bandwidth(IF_bandwidth_hz_.at(i), i);
 
             // set the antenna (optional)
@@ -189,11 +189,11 @@ UhdSignalSource::UhdSignalSource(ConfigurationInterface* configuration,
                     std::cout << boost::format("Check for front-end %s ...") % lo_locked.to_pp_string() << " is ";
                     if (lo_locked.to_bool() == true)
                         {
-                            std::cout << "Locked" << std::endl;
+                            std::cout << "Locked\n";
                         }
                     else
                         {
-                            std::cout << "UNLOCKED!" << std::endl;
+                            std::cout << "UNLOCKED!\n";
                         }
                     // UHD_ASSERT_THROW(lo_locked.to_bool());
                 }
@@ -204,7 +204,7 @@ UhdSignalSource::UhdSignalSource(ConfigurationInterface* configuration,
             if (samples_.at(i) != 0ULL)
                 {
                     LOG(INFO) << "RF_channel " << i << " Send STOP signal after " << samples_.at(i) << " samples";
-                    valve_.emplace_back(gnss_sdr_make_valve(item_size_, samples_.at(i), queue_));
+                    valve_.emplace_back(gnss_sdr_make_valve(item_size_, samples_.at(i), queue));
                     DLOG(INFO) << "valve(" << valve_.at(i)->unique_id() << ")";
                 }
 
@@ -254,6 +254,7 @@ void UhdSignalSource::connect(gr::top_block_sptr top_block)
 
 void UhdSignalSource::disconnect(gr::top_block_sptr top_block)
 {
+    uhd_source_->stop();
     for (int i = 0; i < RF_channels_; i++)
         {
             if (samples_.at(i) != 0ULL)

@@ -17,6 +17,8 @@ endif()
 if(ENABLE_FPGA OR ENABLE_AD9361)
     set(OPT_SIGNAL_SOURCE_LIB_SOURCES ${OPT_SIGNAL_SOURCE_LIB_SOURCES} fpga_switch.cc)
     set(OPT_SIGNAL_SOURCE_LIB_HEADERS ${OPT_SIGNAL_SOURCE_LIB_HEADERS} fpga_switch.h)
+    set(OPT_SIGNAL_SOURCE_LIB_SOURCES ${OPT_SIGNAL_SOURCE_LIB_SOURCES} fpga_dynamic_bit_selection.cc)
+    set(OPT_SIGNAL_SOURCE_LIB_HEADERS ${OPT_SIGNAL_SOURCE_LIB_HEADERS} fpga_dynamic_bit_selection.h)
 endif()
 
 set(SIGNAL_SOURCE_LIB_SOURCES
@@ -36,9 +38,21 @@ set(SIGNAL_SOURCE_LIB_HEADERS
 list(SORT SIGNAL_SOURCE_LIB_HEADERS)
 list(SORT SIGNAL_SOURCE_LIB_SOURCES)
 
-source_group(Headers FILES ${SIGNAL_SOURCE_LIB_HEADERS})
-
-add_library(signal_source_libs ${SIGNAL_SOURCE_LIB_SOURCES} ${SIGNAL_SOURCE_LIB_HEADERS})
+if(USE_CMAKE_TARGET_SOURCES)
+    add_library(signal_source_libs STATIC)
+    target_sources(signal_source_libs
+        PRIVATE
+            ${SIGNAL_SOURCE_LIB_SOURCES}
+        PUBLIC
+            ${SIGNAL_SOURCE_LIB_HEADERS}
+    )
+else()
+    source_group(Headers FILES ${SIGNAL_SOURCE_LIB_HEADERS})
+    add_library(signal_source_libs
+        ${SIGNAL_SOURCE_LIB_SOURCES}
+        ${SIGNAL_SOURCE_LIB_HEADERS}
+    )
+endif()
 
 target_link_libraries(signal_source_libs
     PUBLIC

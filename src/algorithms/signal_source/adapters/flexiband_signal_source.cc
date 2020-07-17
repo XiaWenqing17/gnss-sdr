@@ -27,19 +27,16 @@
 #include <utility>
 
 
-FlexibandSignalSource::FlexibandSignalSource(ConfigurationInterface* configuration,
+FlexibandSignalSource::FlexibandSignalSource(const ConfigurationInterface* configuration,
     const std::string& role,
     unsigned int in_stream,
     unsigned int out_stream,
-    std::shared_ptr<Concurrent_Queue<pmt::pmt_t>> queue) : role_(role),
-                                                           in_stream_(in_stream),
-                                                           out_stream_(out_stream),
-                                                           queue_(std::move(queue))
+    Concurrent_Queue<pmt::pmt_t>* queue __attribute__((unused))) : role_(role), in_stream_(in_stream), out_stream_(out_stream)
 {
-    std::string default_item_type = "byte";
+    const std::string default_item_type("byte");
     item_type_ = configuration->property(role + ".item_type", default_item_type);
 
-    std::string default_firmware_file = "flexiband_I-1b.bit";
+    const std::string default_firmware_file("flexiband_I-1b.bit");
     firmware_filename_ = configuration->property(role + ".firmware_file", default_firmware_file);
 
     gain1_ = configuration->property(role + ".gain1", 0);  // check gain DAC values for Flexiband frontend!
@@ -48,7 +45,7 @@ FlexibandSignalSource::FlexibandSignalSource(ConfigurationInterface* configurati
 
     AGC_ = configuration->property(role + ".AGC", true);                        // enabled AGC by default
     flag_read_file = configuration->property(role + ".flag_read_file", false);  // disable read samples from file by default
-    std::string default_signal_file = "flexiband_frame_samples.bin";
+    const std::string default_signal_file("flexiband_frame_samples.bin");
     signal_file = configuration->property(role + ".signal_file", default_signal_file);
 
     usb_packet_buffer_size_ = configuration->property(role + ".usb_packet_buffer", 128);

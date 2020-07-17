@@ -46,23 +46,23 @@ public:
         // google::protobuf::ShutdownProtobufLibrary();
     }
 
-    inline Serdes_Monitor_Pvt(Serdes_Monitor_Pvt&& other)  //!< Copy constructor
+    inline Serdes_Monitor_Pvt(const Serdes_Monitor_Pvt& other) noexcept  //!< Copy constructor
     {
         this->monitor_ = other.monitor_;
     }
 
-    inline Serdes_Monitor_Pvt& operator=(const Serdes_Monitor_Pvt& rhs)  //!< Copy assignment operator
+    inline Serdes_Monitor_Pvt& operator=(const Serdes_Monitor_Pvt& rhs) noexcept  //!< Copy assignment operator
     {
         this->monitor_ = rhs.monitor_;
         return *this;
     }
 
-    inline Serdes_Monitor_Pvt(const Serdes_Monitor_Pvt& other)  //!< Move constructor
+    inline Serdes_Monitor_Pvt(Serdes_Monitor_Pvt&& other) noexcept  //!< Move constructor
     {
         this->monitor_ = std::move(other.monitor_);
     }
 
-    inline Serdes_Monitor_Pvt& operator=(Serdes_Monitor_Pvt&& other)  //!< Move assignment operator
+    inline Serdes_Monitor_Pvt& operator=(Serdes_Monitor_Pvt&& other) noexcept  //!< Move assignment operator
     {
         if (this != &other)
             {
@@ -71,7 +71,7 @@ public:
         return *this;
     }
 
-    inline std::string createProtobuffer(std::shared_ptr<Monitor_Pvt> monitor)  //!< Serialization into a string
+    inline std::string createProtobuffer(const Monitor_Pvt* monitor)  //!< Serialization into a string
     {
         monitor_.Clear();
 

@@ -36,6 +36,10 @@
 #include <pmt/pmt.h>
 #include <chrono>
 #include <utility>
+#if HAS_GENERIC_LAMBDA
+#else
+#include <boost/bind/bind.hpp>
+#endif
 #ifdef GR_GREATER_38
 #include <gnuradio/analog/sig_source.h>
 #else
@@ -93,7 +97,16 @@ void GalileoE5aPcpsAcquisitionGSoC2014GensourceTest_msg_rx::msg_handler_events(p
 GalileoE5aPcpsAcquisitionGSoC2014GensourceTest_msg_rx::GalileoE5aPcpsAcquisitionGSoC2014GensourceTest_msg_rx(Concurrent_Queue<int>& queue) : gr::block("GalileoE5aPcpsAcquisitionGSoC2014GensourceTest_msg_rx", gr::io_signature::make(0, 0, 0), gr::io_signature::make(0, 0, 0)), channel_internal_queue(queue)
 {
     this->message_port_register_in(pmt::mp("events"));
-    this->set_msg_handler(pmt::mp("events"), boost::bind(&GalileoE5aPcpsAcquisitionGSoC2014GensourceTest_msg_rx::msg_handler_events, this, _1));
+    this->set_msg_handler(pmt::mp("events"),
+#if HAS_GENERIC_LAMBDA
+        [this](auto&& PH1) { msg_handler_events(PH1); });
+#else
+#if USE_BOOST_BIND_PLACEHOLDERS
+        boost::bind(&GalileoE5aPcpsAcquisitionGSoC2014GensourceTest_msg_rx::msg_handler_events, this, boost::placeholders::_1));
+#else
+        boost::bind(&GalileoE5aPcpsAcquisitionGSoC2014GensourceTest_msg_rx::msg_handler_events, this, _1));
+#endif
+#endif
     rx_message = 0;
 }
 
@@ -471,7 +484,7 @@ void GalileoE5aPcpsAcquisitionGSoC2014GensourceTest::process_message()
                     doppler_error_hz = std::abs(expected_doppler_hz3 - gnss_synchro.Acq_doppler_hz);
                     break;
                 default:  // case 3
-                    std::cout << "Error: message from unexpected acquisition channel" << std::endl;
+                    std::cout << "Error: message from unexpected acquisition channel\n";
                     break;
                 }
             detection_counter++;
@@ -492,9 +505,9 @@ void GalileoE5aPcpsAcquisitionGSoC2014GensourceTest::process_message()
 
     realization_counter++;
 
-    // std::cout << correct_estimation_counter << "correct estimation counter" << std::endl;
+    // std::cout << correct_estimation_counter << "correct estimation counter\n";
     std::cout << "Progress: " << round(static_cast<float>(realization_counter / num_of_realizations * 100)) << "% \r" << std::flush;
-    // std::cout << message << "message" <<std::endl;
+    // std::cout << message << "message'\n'";
     if (realization_counter == num_of_realizations)
         {
             mse_delay /= num_of_realizations;
@@ -540,7 +553,7 @@ TEST_F(GalileoE5aPcpsAcquisitionGSoC2014GensourceTest, ConnectAndRun)
     ASSERT_NO_THROW({
         acquisition->connect(top_block);
         auto source = gr::analog::sig_source_c::make(fs_in, gr::analog::GR_SIN_WAVE, 1000, 1, gr_complex(0));
-        auto valve = gnss_sdr_make_valve(sizeof(gr_complex), nsamples, queue);
+        auto valve = gnss_sdr_make_valve(sizeof(gr_complex), nsamples, queue.get());
         top_block->connect(source, 0, valve, 0);
         top_block->connect(valve, 0, acquisition->get_left_block(), 0);
         top_block->msg_connect(acquisition->get_right_block(), pmt::mp("events"), msg_rx, pmt::mp("events"));
@@ -553,7 +566,7 @@ TEST_F(GalileoE5aPcpsAcquisitionGSoC2014GensourceTest, ConnectAndRun)
         elapsed_seconds = end - start;
     }) << "Failure running the top_block.";
 
-    std::cout << "Processed " << nsamples << " samples in " << elapsed_seconds.count() * 1e6 << " microseconds" << std::endl;
+    std::cout << "Processed " << nsamples << " samples in " << elapsed_seconds.count() * 1e6 << " microseconds\n";
 }
 
 
@@ -592,11 +605,10 @@ TEST_F(GalileoE5aPcpsAcquisitionGSoC2014GensourceTest, ValidationOfSIM)
     // USING THE SIGNAL GENERATOR
 
     ASSERT_NO_THROW({
-        std::shared_ptr<GenSignalSource> signal_source;
-        SignalGenerator* signal_generator = new SignalGenerator(config.get(), "SignalSource", 0, 1, queue);
-        FirFilter* filter = new FirFilter(config.get(), "InputFilter", 1, 1);
+        std::shared_ptr<GNSSBlockInterface> signal_generator = std::make_shared<SignalGenerator>(config.get(), "SignalSource", 0, 1, queue.get());
+        std::shared_ptr<GNSSBlockInterface> filter = std::make_shared<FirFilter>(config.get(), "InputFilter", 1, 1);
+        std::shared_ptr<GNSSBlockInterface> signal_source = std::make_shared<GenSignalSource>(signal_generator, filter, "SignalSource", queue.get());
         filter->connect(top_block);
-        signal_source.reset(new GenSignalSource(signal_generator, filter, "SignalSource", queue));
         signal_source->connect(top_block);
         top_block->connect(signal_source->get_right_block(), 0, acquisition->get_left_block(), 0);
         top_block->msg_connect(acquisition->get_right_block(), pmt::mp("events"), msg_rx, pmt::mp("events"));
@@ -643,8 +655,8 @@ TEST_F(GalileoE5aPcpsAcquisitionGSoC2014GensourceTest, ValidationOfSIM)
                     EXPECT_EQ(1, message) << "Acquisition failure. Expected message: 1=ACQ SUCCESS.";
                     if (message == 1)
                         {
-                            // std::cout << gnss_synchro.Acq_delay_samples << "acq delay" <<std::endl;
-                            // std::cout << gnss_synchro.Acq_doppler_hz << "acq doppler" <<std::endl;
+                            // std::cout << gnss_synchro.Acq_delay_samples << "acq delay'\n'";
+                            // std::cout << gnss_synchro.Acq_doppler_hz << "acq doppler'\n'";
                             EXPECT_EQ(static_cast<unsigned int>(1), correct_estimation_counter) << "Acquisition failure. Incorrect parameters estimation.";
                         }
                 }
