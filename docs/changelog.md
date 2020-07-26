@@ -40,6 +40,7 @@ SPDX-FileCopyrightText: 2011-2020 Carles Fernandez-Prades <carles.fernandez@cttc
 - Simpler API for the `Pvt_Solution` class.
 - Improved system constant definition headers, numerical values are only written
   once.
+- Improved const correctness.
 - The software can now be built against the GNU Radio 3.9 API that uses standard
   library's smart pointers instead of Boost's. Minimum GNU Radio required
   version still remains at 3.7.3.
@@ -70,6 +71,7 @@ SPDX-FileCopyrightText: 2011-2020 Carles Fernandez-Prades <carles.fernandez@cttc
 ### Improvements in Reliability:
 
 - Fixed a bug in GLONASS GNAV CRC computation.
+- Fixed a bug in GLONASS time year.
 - Fixed a possible buffer overflow in the generation of RTCM messages.
 - Fixed bugs which could cause a random crash on receiver stopping.
 
