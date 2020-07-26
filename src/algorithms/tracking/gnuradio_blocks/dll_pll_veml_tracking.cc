@@ -11,7 +11,7 @@
  *
  * -------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -31,6 +31,7 @@
 #include "GPS_L5.h"
 #include "Galileo_E1.h"
 #include "Galileo_E5a.h"
+#include "Galileo_E5b.h"
 #include "MATH_CONSTANTS.h"
 #include "beidou_b1i_signal_processing.h"
 #include "beidou_b3i_signal_processing.h"
@@ -127,6 +128,7 @@ dll_pll_veml_tracking::dll_pll_veml_tracking(const Dll_Pll_Conf &conf_) : gr::bl
     map_signal_pretty_name["2S"] = "L2C";
     map_signal_pretty_name["2G"] = "L2 C/A";
     map_signal_pretty_name["5X"] = "E5a";
+    map_signal_pretty_name["7X"] = "E5b";
     map_signal_pretty_name["L5"] = "L5";
     map_signal_pretty_name["B1"] = "B1I";
     map_signal_pretty_name["B3"] = "B3I";
@@ -279,6 +281,37 @@ dll_pll_veml_tracking::dll_pll_veml_tracking(const Dll_Pll_Conf &conf_) : gr::bl
                             // synchronize and remove data secondary code
                             d_secondary_code_length = static_cast<uint32_t>(GALILEO_E5A_I_SECONDARY_CODE_LENGTH);
                             d_secondary_code_string = GALILEO_E5A_I_SECONDARY_CODE;
+                            d_signal_pretty_name = d_signal_pretty_name + "I";
+                            d_interchange_iq = true;
+                        }
+                }
+            else if (d_signal_type == "7X")
+                {
+                    d_signal_carrier_freq = GALILEO_E5B_FREQ_HZ;
+                    d_code_period = GALILEO_E5B_CODE_PERIOD_S;
+                    d_code_chip_rate = GALILEO_E5B_CODE_CHIP_RATE_CPS;
+                    d_symbols_per_bit = 4;
+                    d_correlation_length_ms = 1;
+                    d_code_samples_per_chip = 1;
+                    d_code_length_chips = static_cast<int32_t>(GALILEO_E5B_CODE_LENGTH_CHIPS);
+                    d_secondary = true;
+                    d_trk_parameters.slope = 1.0;
+                    d_trk_parameters.spc = d_trk_parameters.early_late_space_chips;
+                    d_trk_parameters.y_intercept = 1.0;
+                    if (d_trk_parameters.track_pilot)
+                        {
+                            // synchronize pilot secondary code
+                            d_secondary_code_length = static_cast<uint32_t>(GALILEO_E5B_Q_SECONDARY_CODE_LENGTH);
+                            d_signal_pretty_name = d_signal_pretty_name + "Q";
+                            // remove data secondary code
+                            d_data_secondary_code_length = static_cast<uint32_t>(GALILEO_E5B_I_SECONDARY_CODE_LENGTH);
+                            d_data_secondary_code_string = GALILEO_E5B_I_SECONDARY_CODE;
+                        }
+                    else
+                        {
+                            // synchronize and remove data secondary code
+                            d_secondary_code_length = static_cast<uint32_t>(GALILEO_E5B_I_SECONDARY_CODE_LENGTH);
+                            d_secondary_code_string = GALILEO_E5B_I_SECONDARY_CODE;
                             d_signal_pretty_name = d_signal_pretty_name + "I";
                             d_interchange_iq = true;
                         }
@@ -560,11 +593,9 @@ void dll_pll_veml_tracking::msg_handler_telemetry_to_trk(const pmt::pmt_t &msg)
 {
     try
         {
-            if (pmt::any_ref(msg).type() == typeid(int))
+            if (pmt::any_ref(msg).type().hash_code() == int_type_hash_code)
                 {
-                    int tlm_event;
-                    tlm_event = boost::any_cast<int>(pmt::any_ref(msg));
-
+                    const int tlm_event = boost::any_cast<int>(pmt::any_ref(msg));
                     if (tlm_event == 1)
                         {
                             DLOG(INFO) << "Telemetry fault received in ch " << this->d_channel;
@@ -624,7 +655,7 @@ void dll_pll_veml_tracking::start_tracking()
         {
             if (d_trk_parameters.track_pilot)
                 {
-                    std::array<char, 3> pilot_signal = {{'1', 'C', '\0'}};
+                    const std::array<char, 3> pilot_signal = {{'1', 'C', '\0'}};
                     galileo_e1_code_gen_sinboc11_float(d_tracking_code, pilot_signal, d_acquisition_gnss_synchro->PRN);
                     galileo_e1_code_gen_sinboc11_float(d_data_code, Signal_, d_acquisition_gnss_synchro->PRN);
                     d_Prompt_Data[0] = gr_complex(0.0, 0.0);
@@ -638,7 +669,7 @@ void dll_pll_veml_tracking::start_tracking()
     else if (d_systemName == "Galileo" and d_signal_type == "5X")
         {
             volk_gnsssdr::vector<gr_complex> aux_code(d_code_length_chips);
-            std::array<char, 3> signal_type_ = {{'5', 'X', '\0'}};
+            const std::array<char, 3> signal_type_ = {{'5', 'X', '\0'}};
             galileo_e5_a_code_gen_complex_primary(aux_code, d_acquisition_gnss_synchro->PRN, signal_type_);
             if (d_trk_parameters.track_pilot)
                 {
@@ -647,6 +678,30 @@ void dll_pll_veml_tracking::start_tracking()
                         {
                             d_tracking_code[i] = aux_code[i].imag();
                             d_data_code[i] = aux_code[i].real();  // the same because it is generated the full signal (E5aI + E5aQ)
+                        }
+                    d_Prompt_Data[0] = gr_complex(0.0, 0.0);
+                    d_correlator_data_cpu.set_local_code_and_taps(d_code_length_chips, d_data_code.data(), d_prompt_data_shift);
+                }
+            else
+                {
+                    for (int32_t i = 0; i < d_code_length_chips; i++)
+                        {
+                            d_tracking_code[i] = aux_code[i].real();
+                        }
+                }
+        }
+    else if (d_systemName == "Galileo" and d_signal_type == "7X")
+        {
+            volk_gnsssdr::vector<gr_complex> aux_code(d_code_length_chips);
+            const std::array<char, 3> signal_type_ = {{'7', 'X', '\0'}};
+            galileo_e5_b_code_gen_complex_primary(aux_code, d_acquisition_gnss_synchro->PRN, signal_type_);
+            if (d_trk_parameters.track_pilot)
+                {
+                    d_secondary_code_string = GALILEO_E5B_Q_SECONDARY_CODE[d_acquisition_gnss_synchro->PRN - 1];
+                    for (int32_t i = 0; i < d_code_length_chips; i++)
+                        {
+                            d_tracking_code[i] = aux_code[i].imag();
+                            d_data_code[i] = aux_code[i].real();  // the same because it is generated the full signal (E5bI + E5bsQ)
                         }
                     d_Prompt_Data[0] = gr_complex(0.0, 0.0);
                     d_correlator_data_cpu.set_local_code_and_taps(d_code_length_chips, d_data_code.data(), d_prompt_data_shift);
@@ -867,7 +922,7 @@ bool dll_pll_veml_tracking::cn0_and_tracking_lock_status(double coh_integration_
     d_Prompt_buffer[d_cn0_estimation_counter % d_trk_parameters.cn0_samples] = d_P_accu;
     d_cn0_estimation_counter++;
     // Code lock indicator
-    float d_CN0_SNV_dB_Hz_raw = cn0_m2m4_estimator(d_Prompt_buffer.data(), d_trk_parameters.cn0_samples, static_cast<float>(coh_integration_time_s));
+    const float d_CN0_SNV_dB_Hz_raw = cn0_m2m4_estimator(d_Prompt_buffer.data(), d_trk_parameters.cn0_samples, static_cast<float>(coh_integration_time_s));
     d_CN0_SNV_dB_Hz = d_cn0_smoother.smooth(d_CN0_SNV_dB_Hz_raw);
     // Carrier lock indicator
     d_carrier_lock_test = d_carrier_lock_test_smoother.smooth(carrier_lock_detector(d_Prompt_buffer.data(), 1));
@@ -1021,10 +1076,10 @@ void dll_pll_veml_tracking::run_dll_pll()
 
                     if (d_dll_filt_history.full())
                         {
-                            float avg_code_error_chips_s = static_cast<float>(std::accumulate(d_dll_filt_history.begin(), d_dll_filt_history.end(), 0.0)) / static_cast<float>(d_dll_filt_history.capacity());
+                            const float avg_code_error_chips_s = static_cast<float>(std::accumulate(d_dll_filt_history.begin(), d_dll_filt_history.end(), 0.0)) / static_cast<float>(d_dll_filt_history.capacity());
                             if (std::fabs(avg_code_error_chips_s) > 1.0)
                                 {
-                                    float carrier_doppler_error_hz = static_cast<float>(d_signal_carrier_freq) * avg_code_error_chips_s / static_cast<float>(d_code_chip_rate);
+                                    const float carrier_doppler_error_hz = static_cast<float>(d_signal_carrier_freq) * avg_code_error_chips_s / static_cast<float>(d_code_chip_rate);
                                     LOG(INFO) << "Detected and corrected carrier doppler error: " << carrier_doppler_error_hz << " [Hz] on sat " << Gnss_Satellite(d_systemName, d_acquisition_gnss_synchro->PRN);
                                     d_carrier_loop_filter.initialize(static_cast<float>(d_carrier_doppler_hz) - carrier_doppler_error_hz);
                                     d_corrected_doppler = true;
@@ -1360,10 +1415,10 @@ int32_t dll_pll_veml_tracking::save_matfile() const
 {
     // READ DUMP FILE
     std::ifstream::pos_type size;
-    int32_t number_of_double_vars = 1;
-    int32_t number_of_float_vars = 19;
-    int32_t epoch_size_bytes = sizeof(uint64_t) + sizeof(double) * number_of_double_vars +
-                               sizeof(float) * number_of_float_vars + sizeof(uint32_t);
+    const int32_t number_of_double_vars = 1;
+    const int32_t number_of_float_vars = 19;
+    const int32_t epoch_size_bytes = sizeof(uint64_t) + sizeof(double) * number_of_double_vars +
+                                     sizeof(float) * number_of_float_vars + sizeof(uint32_t);
     std::ifstream dump_file;
     std::string dump_filename_ = d_dump_filename;
     // add channel number to the filename
@@ -1631,21 +1686,21 @@ int dll_pll_veml_tracking::general_work(int noutput_items __attribute__((unused)
         case 1:  // Pull-in
             {
                 // Signal alignment (skip samples until the incoming signal is aligned with local replica)
-                int64_t acq_trk_diff_samples = static_cast<int64_t>(d_sample_counter) - static_cast<int64_t>(d_acq_sample_stamp);
-                double acq_trk_diff_seconds = static_cast<double>(acq_trk_diff_samples) / d_trk_parameters.fs_in;
-                double delta_trk_to_acq_prn_start_samples = static_cast<double>(acq_trk_diff_samples) - d_acq_code_phase_samples;
+                const int64_t acq_trk_diff_samples = static_cast<int64_t>(d_sample_counter) - static_cast<int64_t>(d_acq_sample_stamp);
+                const double acq_trk_diff_seconds = static_cast<double>(acq_trk_diff_samples) / d_trk_parameters.fs_in;
+                const double delta_trk_to_acq_prn_start_samples = static_cast<double>(acq_trk_diff_samples) - d_acq_code_phase_samples;
 
                 d_code_freq_chips = d_code_chip_rate;
                 d_code_phase_step_chips = d_code_freq_chips / d_trk_parameters.fs_in;
                 d_code_phase_rate_step_chips = 0.0;
-                double T_chip_mod_seconds = 1.0 / d_code_freq_chips;
-                double T_prn_mod_seconds = T_chip_mod_seconds * static_cast<double>(d_code_length_chips);
-                double T_prn_mod_samples = T_prn_mod_seconds * d_trk_parameters.fs_in;
+                const double T_chip_mod_seconds = 1.0 / d_code_freq_chips;
+                const double T_prn_mod_seconds = T_chip_mod_seconds * static_cast<double>(d_code_length_chips);
+                const double T_prn_mod_samples = T_prn_mod_seconds * d_trk_parameters.fs_in;
 
                 d_acq_code_phase_samples = T_prn_mod_samples - std::fmod(delta_trk_to_acq_prn_start_samples, T_prn_mod_samples);
                 d_current_prn_length_samples = round(T_prn_mod_samples);
 
-                int32_t samples_offset = round(d_acq_code_phase_samples);
+                const int32_t samples_offset = round(d_acq_code_phase_samples);
                 d_acc_carrier_phase_rad -= d_carrier_phase_step_rad * static_cast<double>(samples_offset);
                 d_state = 2;
                 d_sample_counter += samples_offset;  // count for the processed samples

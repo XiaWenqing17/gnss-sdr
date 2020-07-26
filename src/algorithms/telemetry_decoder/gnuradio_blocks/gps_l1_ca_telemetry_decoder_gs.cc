@@ -135,29 +135,20 @@ gps_l1_ca_telemetry_decoder_gs::~gps_l1_ca_telemetry_decoder_gs()
 
 bool gps_l1_ca_telemetry_decoder_gs::gps_word_parityCheck(uint32_t gpsword)
 {
-    uint32_t d1;
-    uint32_t d2;
-    uint32_t d3;
-    uint32_t d4;
-    uint32_t d5;
-    uint32_t d6;
-    uint32_t d7;
-    uint32_t t;
-    uint32_t parity;
     // XOR as many bits in parallel as possible.  The magic constants pick
     //   up bits which are to be XOR'ed together to implement the GPS parity
     //   check algorithm described in IS-GPS-200K.  This avoids lengthy shift-
     //   and-xor loops.
-    d1 = gpsword & 0xFBFFBF00U;
-    d2 = my_rotl::rotl(gpsword, 1U) & 0x07FFBF01U;
-    d3 = my_rotl::rotl(gpsword, 2U) & 0xFC0F8100U;
-    d4 = my_rotl::rotl(gpsword, 3U) & 0xF81FFE02U;
-    d5 = my_rotl::rotl(gpsword, 4U) & 0xFC00000EU;
-    d6 = my_rotl::rotl(gpsword, 5U) & 0x07F00001U;
-    d7 = my_rotl::rotl(gpsword, 6U) & 0x00003000U;
-    t = d1 ^ d2 ^ d3 ^ d4 ^ d5 ^ d6 ^ d7;
+    const uint32_t d1 = gpsword & 0xFBFFBF00U;
+    const uint32_t d2 = my_rotl::rotl(gpsword, 1U) & 0x07FFBF01U;
+    const uint32_t d3 = my_rotl::rotl(gpsword, 2U) & 0xFC0F8100U;
+    const uint32_t d4 = my_rotl::rotl(gpsword, 3U) & 0xF81FFE02U;
+    const uint32_t d5 = my_rotl::rotl(gpsword, 4U) & 0xFC00000EU;
+    const uint32_t d6 = my_rotl::rotl(gpsword, 5U) & 0x07F00001U;
+    const uint32_t d7 = my_rotl::rotl(gpsword, 6U) & 0x00003000U;
+    const uint32_t t = d1 ^ d2 ^ d3 ^ d4 ^ d5 ^ d6 ^ d7;
     // Now XOR the 5 6-bit fields together to produce the 6-bit final result.
-    parity = t ^ my_rotl::rotl(t, 6U) ^ my_rotl::rotl(t, 12U) ^ my_rotl::rotl(t, 18U) ^ my_rotl::rotl(t, 24U);
+    uint32_t parity = t ^ my_rotl::rotl(t, 6U) ^ my_rotl::rotl(t, 12U) ^ my_rotl::rotl(t, 18U) ^ my_rotl::rotl(t, 24U);
     parity = parity & 0x3FU;
     if (parity == (gpsword & 0x3FU))
         {
@@ -269,7 +260,7 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
     // NEW GPS SUBFRAME HAS ARRIVED!
     if (subframe_synchro_confirmation)
         {
-            int32_t subframe_ID = d_nav.subframe_decoder(subframe.data());  // decode the subframe
+            const int32_t subframe_ID = d_nav.subframe_decoder(subframe.data());  // decode the subframe
             if (subframe_ID > 0 and subframe_ID < 6)
                 {
                     std::cout << "New GPS NAV message received in channel " << this->d_channel << ": "
@@ -283,19 +274,19 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
                             if (d_nav.satellite_validation() == true)
                                 {
                                     // get ephemeris object for this SV (mandatory)
-                                    std::shared_ptr<Gps_Ephemeris> tmp_obj = std::make_shared<Gps_Ephemeris>(d_nav.get_ephemeris());
+                                    const std::shared_ptr<Gps_Ephemeris> tmp_obj = std::make_shared<Gps_Ephemeris>(d_nav.get_ephemeris());
                                     this->message_port_pub(pmt::mp("telemetry"), pmt::make_any(tmp_obj));
                                 }
                             break;
                         case 4:  // Possible IONOSPHERE and UTC model update (page 18)
                             if (d_nav.get_flag_iono_valid() == true)
                                 {
-                                    std::shared_ptr<Gps_Iono> tmp_obj = std::make_shared<Gps_Iono>(d_nav.get_iono());
+                                    const std::shared_ptr<Gps_Iono> tmp_obj = std::make_shared<Gps_Iono>(d_nav.get_iono());
                                     this->message_port_pub(pmt::mp("telemetry"), pmt::make_any(tmp_obj));
                                 }
                             if (d_nav.get_flag_utc_model_valid() == true)
                                 {
-                                    std::shared_ptr<Gps_Utc_Model> tmp_obj = std::make_shared<Gps_Utc_Model>(d_nav.get_utc_model());
+                                    const std::shared_ptr<Gps_Utc_Model> tmp_obj = std::make_shared<Gps_Utc_Model>(d_nav.get_utc_model());
                                     this->message_port_pub(pmt::mp("telemetry"), pmt::make_any(tmp_obj));
                                 }
                             break;
