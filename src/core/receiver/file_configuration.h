@@ -7,9 +7,9 @@
  * The file is in the INI format, containing sections and pairs of names and values.
  * For more information about the INI format, see https://en.wikipedia.org/wiki/INI_file
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -18,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -32,6 +32,12 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup Core_Receiver
+ * \{ */
+
 
 /*!
  * \brief This class is an implementation of the interface ConfigurationInterface
@@ -70,4 +76,7 @@ private:
     int error_{};
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_FILE_CONFIGURATION_H

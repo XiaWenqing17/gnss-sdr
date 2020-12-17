@@ -9,9 +9,9 @@
  * Class that controls and executes a highly optimized vector correlator
  * class in the FPGA
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_FPGA_MULTICORRELATOR_H
@@ -30,6 +30,11 @@
 #include <volk_gnsssdr/volk_gnsssdr_alloc.h>
 #include <cstdint>
 #include <string>
+
+/** \addtogroup Tracking
+ * \{ */
+/** \addtogroup Tracking_libs
+ * \{ */
 
 
 /*!
@@ -42,9 +47,6 @@ public:
      * \brief Constructor
      */
     Fpga_Multicorrelator_8sc(int32_t n_correlators,
-        const std::string &device_name,
-        uint32_t dev_file_num,
-        uint32_t num_prev_assigned_ch,
         int32_t *ca_codes,
         int32_t *data_codes,
         uint32_t code_length_chips,
@@ -90,9 +92,9 @@ public:
     bool free();
 
     /*!
-     * \brief Set channel number and open the FPGA device driver
+     * \brief Open the FPGA device driver
      */
-    void set_channel(uint32_t channel);
+    void open_channel(std::string device_io_name, uint32_t channel);
 
     /*!
      * \brief Set the initial sample number where the tracking process begins
@@ -188,7 +190,6 @@ private:
     static const uint32_t enable_secondary_code = 2;            // bit 1 of drop_samples_reg_addr
     static const uint32_t init_secondary_code_addresses = 4;    // bit 2 of drop_samples_reg_addr
     static const uint32_t page_size = 0x10000;
-    static const uint32_t max_length_deviceio_name = 50;
     static const uint32_t max_code_resampler_counter = 1 << 31;  // 2^(number of bits of precision of the code resampler)
     static const uint32_t local_code_fpga_clear_address_counter = 0x10000000;
     static const uint32_t test_register_track_writeval = 0x55AA;
@@ -232,7 +233,6 @@ private:
     volatile uint32_t *d_map_base;  // driver memory map
 
     // configuration data received from the interface
-    uint32_t d_channel;  // channel number
     uint32_t d_correlator_length_samples;
     uint32_t d_code_samples_per_chip;
 
@@ -241,11 +241,6 @@ private:
     int32_t d_rem_carr_phase_rad_int;
     int32_t d_phase_step_rad_int;
     int32_t d_carrier_phase_rate_step_rad_int;
-
-    // driver
-    std::string d_device_name;
-    uint32_t d_dev_file_num;
-    uint32_t d_num_prev_assigned_ch;
 
     // PRN codes
     int32_t *d_ca_codes;
@@ -259,4 +254,7 @@ private:
     bool d_secondary_code_enabled;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_FPGA_MULTICORRELATOR_H

@@ -7,9 +7,9 @@
  * This class represents a file signal source. Internally it uses a GNU Radio's
  * gr_file_source as a connector to the data.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -18,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_FILE_SIGNAL_SOURCE_H
@@ -32,12 +32,15 @@
 #include <gnuradio/hier_block2.h>
 #include <pmt/pmt.h>
 #include <cstdint>
-#include <memory>
 #include <string>
-#if GNURADIO_USES_STD_POINTERS
-#else
-#include <boost/shared_ptr.hpp>
-#endif
+
+/** \addtogroup Signal_Source Signal Source
+ * Classes for Signal Source management.
+ * \{ */
+/** \addtogroup Signal_Source_adapters signal_source_adapters
+ * Classes that wrap GNU Radio signal sources with a GNSSBlockInterface
+ * \{ */
+
 
 class ConfigurationInterface;
 
@@ -104,11 +107,7 @@ public:
 
 private:
     gr::blocks::file_source::sptr file_source_;
-#if GNURADIO_USES_STD_POINTERS
-    std::shared_ptr<gr::block> valve_;
-#else
-    boost::shared_ptr<gr::block> valve_;
-#endif
+    gnss_shared_ptr<gr::block> valve_;
     gr::blocks::file_sink::sptr sink_;
     gr::blocks::throttle::sptr throttle_;
 
@@ -129,4 +128,7 @@ private:
     bool dump_;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_FILE_SIGNAL_SOURCE_H

@@ -24,9 +24,9 @@
  *          <li> Antonio Ramos, 2017. antonio.ramos@cttc.es
  *          </ul>
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -35,7 +35,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_PCPS_ACQUISITION_H
@@ -59,6 +59,7 @@
 #include <complex>
 #include <cstdint>
 #include <memory>
+#include <queue>
 #include <string>
 #include <utility>
 
@@ -70,19 +71,18 @@ namespace own = std;
 namespace own = gsl;
 #endif
 
-#if GNURADIO_USES_STD_POINTERS
-#else
-#include <boost/shared_ptr.hpp>
-#endif
+/** \addtogroup Acquisition
+ * Classes for GNSS signal acquisition
+ * \{ */
+/** \addtogroup Acq_gnuradio_blocks acquisition_gr_blocks
+ * GNU Radio processing blocks for GNSS signal acquisition
+ * \{ */
+
 
 class Gnss_Synchro;
 class pcps_acquisition;
 
-#if GNURADIO_USES_STD_POINTERS
-using pcps_acquisition_sptr = std::shared_ptr<pcps_acquisition>;
-#else
-using pcps_acquisition_sptr = boost::shared_ptr<pcps_acquisition>;
-#endif
+using pcps_acquisition_sptr = gnss_shared_ptr<pcps_acquisition>;
 
 pcps_acquisition_sptr pcps_make_acquisition(const Acq_Conf& conf_);
 
@@ -243,8 +243,14 @@ private:
     volk_gnsssdr::vector<std::complex<float>> d_data_buffer;
     volk_gnsssdr::vector<lv_16sc_t> d_data_buffer_sc;
 
+#if GNURADIO_FFT_USES_TEMPLATES
+    std::unique_ptr<gr::fft::fft_complex_fwd> d_fft_if;
+    std::unique_ptr<gr::fft::fft_complex_rev> d_ifft;
+#else
     std::unique_ptr<gr::fft::fft_complex> d_fft_if;
     std::unique_ptr<gr::fft::fft_complex> d_ifft;
+#endif
+
     std::weak_ptr<ChannelFsm> d_channel_fsm;
 
     Acq_Conf d_acq_parameters;
@@ -284,6 +290,11 @@ private:
     bool d_step_two;
     bool d_use_CFAR_algorithm_flag;
     bool d_dump;
+
+    std::queue<Gnss_Synchro> d_monitor_queue;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_PCPS_ACQUISITION_H

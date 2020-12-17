@@ -20,7 +20,7 @@
  * Neither the executive binaries nor the shared libraries are required by, used
  * or included in GNSS-SDR.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  * Copyright (C) 2007-2013, T. Takasu
  * Copyright (C) 2017-2019, Javier Arribas
  * Copyright (C) 2017-2019, Carles Fernandez
@@ -28,7 +28,8 @@
  *
  * SPDX-License-Identifier: BSD-2-Clause
  *
- * -------------------------------------------------------------------------*/
+ * -----------------------------------------------------------------------------
+ */
 
 #ifndef GNSS_SDR_RTKLIB_SOLVER_H
 #define GNSS_SDR_RTKLIB_SOLVER_H
@@ -60,6 +61,12 @@
 #include <fstream>
 #include <map>
 #include <string>
+
+/** \addtogroup PVT
+ * \{ */
+/** \addtogroup PVT_libs pvt_libs
+ * Library for the computation of PVT solutions.
+ * \{ */
 
 
 /*!
@@ -120,4 +127,7 @@ private:
     bool d_flag_dump_mat_enabled;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_RTKLIB_SOLVER_H

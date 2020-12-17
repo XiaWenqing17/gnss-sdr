@@ -6,9 +6,9 @@
  * \author Luis Esteve, 2017. luis(at)epsilon-formacion.com
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -17,14 +17,14 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "glonass_l1_ca_pcps_acquisition.h"
 #include "GLONASS_L1_L2_CA.h"
 #include "acq_conf.h"
 #include "configuration_interface.h"
-#include "glonass_l1_signal_processing.h"
+#include "glonass_l1_signal_replica.h"
 #include "gnss_sdr_flags.h"
 #include <glog/logging.h>
 #include <algorithm>

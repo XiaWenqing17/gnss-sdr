@@ -12,9 +12,9 @@
  * Carrier Synchronization", IEEE Aerospace and Electronic Systems Magazine,
  * Vol. 32, No. 7, pp. 28–45, July 2017. DOI: 10.1109/MAES.2017.150260
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -23,7 +23,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GPS_L1_CA_KF_TRACKING_CC_H
@@ -35,6 +35,7 @@
 
 #include "bayesian_estimation.h"
 #include "cpu_multicorrelator_real_codes.h"
+#include "gnss_block_interface.h"
 #include "gnss_synchro.h"
 #include "tracking_2nd_DLL_filter.h"
 #include "tracking_2nd_PLL_filter.h"
@@ -44,19 +45,16 @@
 #include <fstream>
 #include <map>
 #include <string>
-#if GNURADIO_USES_STD_POINTERS
-#include <memory>
-#else
-#include <boost/shared_ptr.hpp>
-#endif
+
+/** \addtogroup Tracking
+ * \{ */
+/** \addtogroup Tracking_gnuradio_blocks
+ * \{ */
+
 
 class Gps_L1_Ca_Kf_Tracking_cc;
 
-#if GNURADIO_USES_STD_POINTERS
-using gps_l1_ca_kf_tracking_cc_sptr = std::shared_ptr<Gps_L1_Ca_Kf_Tracking_cc>;
-#else
-using gps_l1_ca_kf_tracking_cc_sptr = boost::shared_ptr<Gps_L1_Ca_Kf_Tracking_cc>;
-#endif
+using gps_l1_ca_kf_tracking_cc_sptr = gnss_shared_ptr<Gps_L1_Ca_Kf_Tracking_cc>;
 
 gps_l1_ca_kf_tracking_cc_sptr
 gps_l1_ca_kf_make_tracking_cc(uint32_t order,
@@ -221,4 +219,7 @@ private:
     int32_t save_matfile();
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GPS_L1_CA_KF_TRACKING_CC_H

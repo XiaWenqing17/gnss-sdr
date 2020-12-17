@@ -5,9 +5,9 @@
  * \author Damian Miralles, 2017. dmiralles2009(at)gmail.com
  * \see <a href="http://russianspacesystems.ru/wp-content/uploads/2016/08/ICD_GLONASS_eng_v5.1.pdf">GLONASS ICD</a>
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "glonass_gnav_navigation_message.h"
@@ -668,7 +668,7 @@ bool Glonass_Gnav_Navigation_Message::have_new_almanac()  // Check if we have a 
         {
             if (d_previous_Na[i_alm_satellite_slot_number] != gnav_utc_model.d_N_A)
                 {
-                    // All almanac have been received for this satellite
+                    // All Almanac data have been received for this satellite
                     flag_almanac_str_6 = false;
                     flag_almanac_str_7 = false;
                     new_alm = true;

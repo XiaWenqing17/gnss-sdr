@@ -7,9 +7,9 @@
  *
  * Class that contains all the configuration parameters for generic tracking block based on a DLL and a PLL.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -18,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_DLL_PLL_CONF_FPGA_H
@@ -27,6 +27,12 @@
 #include "configuration_interface.h"
 #include <cstdint>
 #include <string>
+
+/** \addtogroup Tracking
+ * \{ */
+/** \addtogroup Tracking_libs
+ * \{ */
+
 
 class Dll_Pll_Conf_Fpga
 {
@@ -62,8 +68,6 @@ public:
     uint32_t bit_synchronization_time_limit_s;
     uint32_t vector_length;
     uint32_t smoother_length;
-    uint32_t dev_file_num;
-    uint32_t num_prev_assigned_ch;
     uint32_t code_length_chips;
     uint32_t code_samples_per_chip;
     uint32_t extend_fpga_integration_periods;
@@ -98,4 +102,7 @@ public:
     bool dump_mat;
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_DLL_PLL_CONF_FPGA_H

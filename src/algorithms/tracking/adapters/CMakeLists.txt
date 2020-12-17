@@ -44,6 +44,7 @@ set(TRACKING_ADAPTER_SOURCES
     gps_l1_ca_tcp_connector_tracking.cc
     galileo_e5a_dll_pll_tracking.cc
     galileo_e5b_dll_pll_tracking.cc
+    galileo_e6_dll_pll_tracking.cc
     gps_l2_m_dll_pll_tracking.cc
     glonass_l1_ca_dll_pll_tracking.cc
     glonass_l1_ca_dll_pll_c_aid_tracking.cc
@@ -63,6 +64,7 @@ set(TRACKING_ADAPTER_HEADERS
     gps_l1_ca_tcp_connector_tracking.h
     galileo_e5a_dll_pll_tracking.h
     galileo_e5b_dll_pll_tracking.h
+    galileo_e6_dll_pll_tracking.h
     gps_l2_m_dll_pll_tracking.h
     glonass_l1_ca_dll_pll_tracking.h
     glonass_l1_ca_dll_pll_c_aid_tracking.h
@@ -107,14 +109,29 @@ target_include_directories(tracking_adapters
         ${CMAKE_SOURCE_DIR}/src/core/interfaces
 )
 
-if(ENABLE_CUDA AND NOT CMAKE_VERSION VERSION_GREATER 3.11)
+if(ENABLE_FPGA)
     target_link_libraries(tracking_adapters
-        PUBLIC
-            ${CUDA_LIBRARIES}
+        PRIVATE
+            core_libs
     )
-    target_include_directories(tracking_adapters
-        PUBLIC
-            ${CUDA_INCLUDE_DIRS}
+endif()
+
+if(ENABLE_CUDA)
+    if(CMAKE_VERSION VERSION_GREATER 3.11)
+        target_include_directories(tracking_adapters
+            PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+        )
+    else()
+        target_link_libraries(tracking_adapters
+            PUBLIC ${CUDA_LIBRARIES}
+        )
+        target_include_directories(tracking_adapters
+            PUBLIC ${CUDA_INCLUDE_DIRS}
+        )
+    endif()
+    set_target_properties(tracking_adapters PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON
+        POSITION_INDEPENDENT_CODE ON
     )
 endif()
 

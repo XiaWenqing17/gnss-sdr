@@ -7,9 +7,9 @@
  *
  * Class that implements a highly optimized vector multiTAP correlator class for NVIDIA CUDA GPUs
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -18,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_CUDA_MULTICORRELATOR_H
@@ -36,6 +36,12 @@
 #include <complex>
 #include <cuda.h>
 #include <cuda_runtime.h>
+
+/** \addtogroup Tracking
+ * \{ */
+/** \addtogroup Tracking_libs
+ * \{ */
+
 
 // GPU new internal data types for complex numbers
 
@@ -158,4 +164,6 @@ private:
 };
 
 
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_CUDA_MULTICORRELATOR_H

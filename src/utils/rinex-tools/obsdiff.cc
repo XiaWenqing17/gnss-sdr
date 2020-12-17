@@ -7,7 +7,7 @@
  *          </ul>
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
  * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
@@ -18,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "gnuplot_i.h"
@@ -62,6 +62,12 @@
 #include <string>
 #include <vector>
 
+#if GFLAGS_OLD_NAMESPACE
+namespace gflags
+{
+using namespace google;
+}
+#endif
 
 // Create the lists of GNSS satellites
 std::set<int> available_gps_prn = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -107,15 +113,27 @@ std::map<int, arma::mat> ReadRinexObs(const std::string& rinex_file, char system
             switch (system)
                 {
                 case 'G':
+#if OLD_GPSTK
                     prn.system = gpstk::SatID::systemGPS;
+#else
+                    prn.system = gpstk::SatelliteSystem::GPS;
+#endif
                     PRN_set = available_gps_prn;
                     break;
                 case 'E':
+#if OLD_GPSTK
                     prn.system = gpstk::SatID::systemGalileo;
+#else
+                    prn.system = gpstk::SatelliteSystem::Galileo;
+#endif
                     PRN_set = available_galileo_prn;
                     break;
                 default:
+#if OLD_GPSTK
                     prn.system = gpstk::SatID::systemGPS;
+#else
+                    prn.system = gpstk::SatelliteSystem::GPS;
+#endif
                     PRN_set = available_gps_prn;
                 }
 
@@ -1235,12 +1253,19 @@ double compute_rx_clock_error(const std::string& rinex_nav_filename, const std::
                             // pointer to the tropospheric model to be applied
                             try
                                 {
+#if OLD_GPSTK
                                     std::vector<gpstk::SatID::SatelliteSystem> Syss;
+#endif
                                     gpstk::Matrix<double> invMC;
                                     int iret;
-                                    // Call RAIMCompute.
+                                    // Call RAIMCompute
+#if OLD_GPSTK
                                     iret = raimSolver.RAIMCompute(rod.time, prnVec, Syss, rangeVec, invMC,
                                         &bcestore, tropModelPtr);
+#else
+                                    iret = raimSolver.RAIMCompute(rod.time, prnVec, rangeVec, invMC,
+                                        &bcestore, tropModelPtr);
+#endif
                                     switch (iret)
                                         {
                                         /// @return Return values:
@@ -1660,7 +1685,7 @@ void RINEX_singlediff()
 int main(int argc, char** argv)
 {
     std::cout << "Running RINEX observables difference tool...\n";
-    google::ParseCommandLineFlags(&argc, &argv, true);
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
     if (FLAGS_single_diff)
         {
             if (FLAGS_dupli_sat)
@@ -1677,6 +1702,6 @@ int main(int argc, char** argv)
             RINEX_doublediff(FLAGS_remove_rx_clock_error);
         }
 
-    google::ShutDownCommandLineFlags();
+    gflags::ShutDownCommandLineFlags();
     return 0;
 }

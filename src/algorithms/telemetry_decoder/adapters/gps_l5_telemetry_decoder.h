@@ -4,9 +4,9 @@
  * to a TelemetryDecoderInterface
  * \author Antonio Ramos, 2017. antonio.ramos(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -27,9 +27,15 @@
 #include "gnss_synchro.h"
 #include "gps_l5_telemetry_decoder_gs.h"
 #include "telemetry_decoder_interface.h"
+#include "tlm_conf.h"
 #include <gnuradio/runtime_types.h>  // for basic_block_sptr, top_block_sptr
 #include <cstddef>                   // for size_t
 #include <string>
+
+/** \addtogroup Telemetry_Decoder
+ * \{ */
+/** \addtogroup Telemetry_Decoder_adapters
+ * \{ */
 
 
 class ConfigurationInterface;
@@ -81,12 +87,15 @@ public:
 private:
     gps_l5_telemetry_decoder_gs_sptr telemetry_decoder_;
     Gnss_Satellite satellite_;
+    Tlm_Conf tlm_parameters_;
     std::string dump_filename_;
     std::string role_;
     int channel_;
     unsigned int in_streams_;
     unsigned int out_streams_;
-    bool dump_;
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_GPS_L5_TELEMETRY_DECODER_H

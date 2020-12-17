@@ -5,9 +5,9 @@
  * \author Javier Arribas 2013 jarribas(at)cttc.es,
  *  Mara Branzanti 2013. mara.branzanti(at)gmail.com
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -28,9 +28,15 @@
 #include "gnss_satellite.h"
 #include "gnss_synchro.h"
 #include "telemetry_decoder_interface.h"
+#include "tlm_conf.h"
 #include <gnuradio/runtime_types.h>  // for basic_block_sptr, top_block_sptr
 #include <cstddef>                   // for size_t
 #include <string>
+
+/** \addtogroup Telemetry_Decoder
+ * \{ */
+/** \addtogroup Telemetry_Decoder_adapters
+ * \{ */
 
 
 class ConfigurationInterface;
@@ -84,12 +90,14 @@ public:
 private:
     galileo_telemetry_decoder_gs_sptr telemetry_decoder_;
     Gnss_Satellite satellite_;
-    std::string dump_filename_;
+    Tlm_Conf tlm_parameters_;
     std::string role_;
     int channel_;
     unsigned int in_streams_;
     unsigned int out_streams_;
-    bool dump_;
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_GALILEO_E1B_TELEMETRY_DECODER_H

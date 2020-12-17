@@ -13,6 +13,11 @@
 if(NOT COMMAND feature_summary)
     include(FeatureSummary)
 endif()
+
+if(NOT PKG_CONFIG_FOUND)
+    include(FindPkgConfig)
+endif()
+
 include(FindPackageHandleStandardArgs)
 
 # if GR_REQUIRED_COMPONENTS is not defined, it will be set to the following list
@@ -280,6 +285,13 @@ if(GNURADIO_VERSION VERSION_GREATER 3.8.99)
             set(GNURADIO_USES_STD_POINTERS TRUE)
         endif()
     endforeach()
+endif()
+
+# Detect if FFT are templates
+if(EXISTS ${GNURADIO_FFT_INCLUDE_DIRS}/gnuradio/fft/fft_vfc.h)
+    set(GNURADIO_FFT_USES_TEMPLATES FALSE)
+else()
+    set(GNURADIO_FFT_USES_TEMPLATES TRUE)
 endif()
 
 # Search for IIO component

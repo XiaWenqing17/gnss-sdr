@@ -5,7 +5,7 @@
  * \author Piyush Gupta, 2020. piyush04111999@gmail.com
  * \note Code added as part of GSoC 2020 Program.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
  * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GALILEO_E5B_PCPS_ACQUISITION_FPGA_H
@@ -29,6 +29,12 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+/** \addtogroup Acquisition
+ * \{ */
+/** \addtogroup Acq_adapters
+ * \{ */
+
 
 class ConfigurationInterface;
 
@@ -184,6 +190,8 @@ public:
     void set_resampler_latency(uint32_t latency_samples __attribute__((unused))) override{};
 
 private:
+    const std::string acquisition_device_name = "acquisition_S00_AXI";  // UIO device name
+
     // the following flags are FPGA-specific and they are using arrange the values of the fft of the local code in the way the FPGA
     // expects. This arrangement is done in the initialisation to avoid consuming unnecessary clock cycles during tracking.
     static const uint32_t quant_bits_local_code = 16;
@@ -211,4 +219,7 @@ private:
     bool acq_iq_;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GALILEO_E5B_PCPS_ACQUISITION_FPGA_H

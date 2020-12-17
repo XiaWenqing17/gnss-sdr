@@ -33,6 +33,11 @@
 #include <string>  // for string
 #include <vector>  // for vector
 
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup Core_Receiver
+ * \{ */
+
 
 class ConfigurationInterface;
 class GNSSBlockInterface;
@@ -62,7 +67,7 @@ public:
     std::unique_ptr<GNSSBlockInterface> GetPVT(const ConfigurationInterface* configuration);
 
     /*!
-     * \brief Returns the block with the required role implementation and its configuration parameters 
+     * \brief Returns the block with the required role implementation and its configuration parameters
      */
     std::unique_ptr<GNSSBlockInterface> GetBlock(const ConfigurationInterface* configuration,
         const std::string& role,
@@ -96,4 +101,7 @@ private:
         unsigned int out_streams);
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_BLOCK_FACTORY_H

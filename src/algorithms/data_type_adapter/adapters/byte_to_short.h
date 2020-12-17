@@ -3,9 +3,9 @@
  * \brief Adapts an 8-bits sample stream (IF) to a short int stream (IF)
  * \author Carles Fernandez Prades, cfernandez(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_BYTE_TO_SHORT_H
@@ -25,6 +25,14 @@
 #include <gnuradio/blocks/file_sink.h>
 #include <cstdint>
 #include <string>
+
+/** \addtogroup Data_Type Data Type Adapters
+ * Classes for data type conversion
+ * \{ */
+/** \addtogroup Data_type_adapters data_type_adapters
+ * Wrap GNU Radio data tyope adapter blocks with a GNSSBlockInterface
+ * \{ */
+
 
 class ConfigurationInterface;
 
@@ -74,4 +82,7 @@ private:
     bool dump_;
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_BYTE_TO_SHORT_H

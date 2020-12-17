@@ -8,9 +8,9 @@
  * instantiated directly if all inherited pure virtual methods have been
  * implemented by that class or a parent class.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -19,7 +19,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -29,6 +29,35 @@
 #include <gnuradio/top_block.h>
 #include <cassert>
 #include <string>
+#include <utility>  // for std::forward
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup GNSS_Block_Interfaces
+ * \{ */
+
+// clang-format off
+#if GNURADIO_USES_STD_POINTERS
+#include <memory>
+template <typename T>
+using gnss_shared_ptr = std::shared_ptr<T>;
+template <typename C, typename... Args>
+gnss_shared_ptr<C> gnss_make_shared(Args &&... args)
+{
+    return std::make_shared<C>(std::forward<Args>(args)...);
+}
+#else
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+template <typename T>
+using gnss_shared_ptr = boost::shared_ptr<T>;
+template <typename C, typename... Args>
+gnss_shared_ptr<C> gnss_make_shared(Args &&... args)
+{
+    return boost::make_shared<C>(std::forward<Args>(args)...);
+}
+#endif
+// clang-format on
 
 
 /*!
@@ -68,6 +97,14 @@ public:
             };           // avoid unused param warning
         return nullptr;  // added to support raw array access (non pure virtual to allow left unimplemented)= 0;
     }
+
+    /*!
+     * \brief Start the flow of samples if needed.
+     */
+    virtual void start(){};
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GNSS_BLOCK_INTERFACE_H

@@ -3,9 +3,9 @@
  * \brief  Defines system parameters for GPS L5 signal
  * \author Javier Arribas, 2017. jarribas(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -24,6 +24,11 @@
 #include "GPS_CNAV.h"
 #include "gnss_frequencies.h"
 #include <cstdint>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
 
 
 // carrier and code frequencies
@@ -169,4 +174,7 @@ constexpr int32_t GPS_L5Q_NH_CODE[20] = {0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 
 constexpr char GPS_L5I_NH_CODE_STR[11] = "0000110101";
 constexpr char GPS_L5Q_NH_CODE_STR[21] = "00000100110101001110";
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GPS_L5_H

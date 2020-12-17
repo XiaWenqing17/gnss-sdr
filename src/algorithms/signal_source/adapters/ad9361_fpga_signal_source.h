@@ -4,9 +4,9 @@
  * This source implements only the AD9361 control. It is NOT compatible with conventional SDR acquisition and tracking blocks.
  * Please use the fmcomms2 source if conventional SDR acquisition and tracking is selected in the configuration file.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_AD9361_FPGA_SIGNAL_SOURCE_H
@@ -32,6 +32,13 @@
 #include <string>
 #include <thread>
 
+
+/** \addtogroup Signal_Source
+ * \{ */
+/** \addtogroup Signal_Source_adapters
+ * \{ */
+
+
 class ConfigurationInterface;
 
 class Ad9361FpgaSignalSource : public GNSSBlockInterface
@@ -42,6 +49,8 @@ public:
         unsigned int out_stream, Concurrent_Queue<pmt::pmt_t> *queue);
 
     ~Ad9361FpgaSignalSource();
+
+    void start() override;
 
     inline std::string role() override
     {
@@ -67,6 +76,9 @@ public:
     gr::basic_block_sptr get_right_block() override;
 
 private:
+    const std::string switch_device_name = "AXIS_Switch_v1_0_0";          // Switch UIO device name
+    const std::string dyn_bit_sel_device_name = "dynamic_bits_selector";  // Switch UIO device name
+
     // perform dynamic bit selection every 500 ms by default
     static const uint32_t Gain_control_period_ms = 500;
 
@@ -74,7 +86,7 @@ private:
         const std::string &Filename1,
         const std::string &Filename2);
 
-    void run_dynamic_bit_selection_process(void);
+    void run_dynamic_bit_selection_process();
 
     std::thread thread_file_to_dma;
     std::thread thread_dynamic_bit_selection;
@@ -94,6 +106,9 @@ private:
     std::string filename_rx1;
     std::string filename_rx2;
     std::string freq_band;
+
+    std::mutex dma_mutex;
+    std::mutex dynamic_bit_selection_mutex;
 
     double rf_gain_rx1_;
     double rf_gain_rx2_;
@@ -125,9 +140,9 @@ private:
     bool enable_DMA_;
     bool enable_dynamic_bit_selection_;
     bool rf_shutdown_;
-
-    std::mutex dma_mutex;
-    std::mutex dynamic_bit_selection_mutex;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_AD9361_FPGA_SIGNAL_SOURCE_H

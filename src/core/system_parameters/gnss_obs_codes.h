@@ -4,9 +4,9 @@
  * \author Carles Fernandez, 2017. cfernandez(at)cttc.es
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -23,6 +23,12 @@
 #define GNSS_SDR_GNSS_OBS_CODES_H
 
 #include <cstdint>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
+
 
 constexpr uint32_t CODE_NONE = 0;  //!<   obs code: none or unknown
 constexpr uint32_t CODE_L1C = 1;   //!<   obs code: L1C/A,G1C/A,E1C (GPS,GLO,GAL,QZS,SBS)
@@ -83,4 +89,6 @@ constexpr uint32_t CODE_L9X = 55;  //!<   obs code: SB+C       (IRN)
 constexpr int32_t MAXCODE = 55;    //!<   max number of obs code
 
 
-#endif
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_GNSS_OBS_CODES_H

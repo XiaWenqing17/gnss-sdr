@@ -4,9 +4,9 @@
  * \author Javier Arribas, 2011. jarribas(at)cttc.es
  *         Álvaro Cebrián Juan, 2018. acebrianjuan(at)gmail.com
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -24,6 +24,12 @@
 
 #include <fstream>  // for ofstream
 #include <string>
+
+/** \addtogroup PVT
+ * \{ */
+/** \addtogroup PVT_libs
+ * \{ */
+
 
 class Pvt_Solution;
 
@@ -38,7 +44,7 @@ public:
     explicit Kml_Printer(const std::string& base_path = std::string("."));
     ~Kml_Printer();
     bool set_headers(const std::string& filename, bool time_tag_name = true);
-    bool print_position(const Pvt_Solution* position, bool print_average_values);
+    bool print_position(const Pvt_Solution* const position, bool print_average_values);
     bool close_file();
 
 private:
@@ -52,4 +58,7 @@ private:
     bool positions_printed;
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_KML_PRINTER_H

@@ -4,9 +4,9 @@
  * acquisition block based on the PCPS algorithm.
  * \author Carles Fernandez, 2018. cfernandez(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "acq_conf.h"
@@ -56,6 +56,7 @@ Acq_Conf::Acq_Conf()
     resampler_ratio = 1.0;
     resampled_fs = 0LL;
     resampler_latency_samples = 0U;
+    enable_monitor_output = false;
 }
 
 
@@ -70,7 +71,7 @@ void Acq_Conf::SetFromConfiguration(const ConfigurationInterface *configuration,
 
     chips_per_second = chip_rate;
 
-    int64_t fs_in_deprecated = configuration->property("GNSS-SDR.internal_fs_hz", fs_in);
+    const int64_t fs_in_deprecated = configuration->property("GNSS-SDR.internal_fs_hz", fs_in);
     fs_in = configuration->property("GNSS-SDR.internal_fs_sps", fs_in_deprecated);
     doppler_max = configuration->property(role + ".doppler_max", doppler_max);
     sampled_ms = configuration->property(role + ".coherent_integration_time_ms", sampled_ms);
@@ -120,6 +121,8 @@ void Acq_Conf::SetFromConfiguration(const ConfigurationInterface *configuration,
             // if pfa is not set, we use the first_vs_second_peak_statistic metric
             use_CFAR_algorithm_flag = false;
         }
+
+    enable_monitor_output = configuration->property("AcquisitionMonitor.enable_monitor", false);
 
     SetDerivedParams();
 }

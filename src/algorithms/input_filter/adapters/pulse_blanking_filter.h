@@ -4,9 +4,9 @@
  * \author Javier Arribas 2017
  *         Antonio Ramos  2017
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_PULSE_BLANKING_FILTER_H
@@ -30,6 +30,12 @@
 #include <gnuradio/filter/freq_xlating_fir_filter_ccf.h>
 #endif
 #include <string>
+
+/** \addtogroup Input_Filter
+ * \{ */
+/** \addtogroup Input_filter_adapters
+ * \{ */
+
 
 class ConfigurationInterface;
 
@@ -78,4 +84,7 @@ private:
     bool xlat_;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_PULSE_BLANKING_FILTER_H

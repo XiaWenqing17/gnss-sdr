@@ -5,9 +5,9 @@
  * \author Javier Arribas, 2018. jarribas(at)cttc.es
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2012-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2012-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -16,13 +16,12 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "convolutional.h"
 #include "galileo_fnav_message.h"
-#include "galileo_navigation_message.h"
-#include <armadillo>
+#include "galileo_inav_message.h"
 #include <gtest/gtest.h>
 #include <volk_gnsssdr/volk_gnsssdr.h>
 #include <chrono>
@@ -34,7 +33,7 @@
 class Galileo_FNAV_INAV_test : public ::testing::Test
 {
 public:
-    Galileo_Navigation_Message INAV_decoder;
+    Galileo_Inav_Message INAV_decoder;
     Galileo_Fnav_Message FNAV_decoder;
     // vars for Viterbi decoder
     int32_t *out0, *out1, *state0, *state1;

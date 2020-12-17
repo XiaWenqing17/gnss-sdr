@@ -4,9 +4,9 @@
  * Protocol Buffers
  * \author Carles Fernandez-Prades, 2019. cfernandez(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_SERDES_MONITOR_PVT_H
@@ -26,6 +26,12 @@
 #include <memory>
 #include <string>
 #include <utility>
+
+/** \addtogroup PVT
+ * \{ */
+/** \addtogroup PVT_libs
+ * \{ */
+
 
 /*!
  * \brief This class implements serialization and deserialization of
@@ -71,7 +77,7 @@ public:
         return *this;
     }
 
-    inline std::string createProtobuffer(const Monitor_Pvt* monitor)  //!< Serialization into a string
+    inline std::string createProtobuffer(const Monitor_Pvt* const monitor)  //!< Serialization into a string
     {
         monitor_.Clear();
 
@@ -111,7 +117,7 @@ public:
         return data;
     }
 
-    inline Monitor_Pvt readProtobuffer(const gnss_sdr::MonitorPvt& mon)  //!< Deserialization
+    inline Monitor_Pvt readProtobuffer(const gnss_sdr::MonitorPvt& mon) const  //!< Deserialization
     {
         Monitor_Pvt monitor;
 
@@ -152,4 +158,7 @@ private:
     gnss_sdr::MonitorPvt monitor_{};
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_SERDES_MONITOR_PVT_H

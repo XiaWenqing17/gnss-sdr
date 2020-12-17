@@ -20,9 +20,9 @@
  *          <li> Javier Arribas, 2011. jarribas(at)cttc.es
  *          <li> Luis Esteve, 2012. luis(at)epsilon-formacion.com
  *          </ul>
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -31,13 +31,18 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_LOCK_DETECTORS_H
 #define GNSS_SDR_LOCK_DETECTORS_H
 
 #include <gnuradio/gr_complex.h>
+
+/** \addtogroup Tracking
+ * \{ */
+/** \addtogroup Tracking_libs
+ * \{ */
 
 
 /*! \brief cn0_svn_estimator is a Carrier-to-Noise (CN0) estimator
@@ -105,4 +110,7 @@ float cn0_m2m4_estimator(const gr_complex* Prompt_buffer, int length, float coh_
  */
 float carrier_lock_detector(gr_complex* Prompt_buffer, int length);
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_LOCK_DETECTORS_H

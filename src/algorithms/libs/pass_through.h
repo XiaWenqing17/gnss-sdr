@@ -5,9 +5,9 @@
  * \author Carlos Aviles, 2010. carlos.avilesr(at)googlemail.com
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_PASS_THROUGH_H
@@ -30,6 +30,11 @@
 #include <gnuradio/runtime_types.h>
 #include <cstddef>
 #include <string>
+
+/** \addtogroup Algorithms_Library
+ * \{ */
+/** \addtogroup Algorithm_libs algorithms_libs
+ * \{ */
 
 
 class ConfigurationInterface;
@@ -52,7 +57,7 @@ public:
         return role_;
     }
 
-    //! returns "Pass_Through"
+    //! Returns "Pass_Through"
     inline std::string implementation() override
     {
         return "Pass_Through";
@@ -86,4 +91,7 @@ private:
     bool inverted_spectrum;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_PASS_THROUGH_H

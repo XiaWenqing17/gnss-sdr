@@ -7,9 +7,9 @@
  * and returns the value of this parameter, a string, as output.
  * Property names are defined here. This is an abstract class for interfaces.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -18,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_CONFIGURATION_INTERFACE_H
@@ -26,6 +26,12 @@
 
 #include <cstdint>
 #include <string>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup GNSS_Block_Interfaces
+ * \{ */
+
 
 /*!
  * \brief This abstract class represents an interface to configuration parameters.
@@ -55,4 +61,7 @@ public:
     virtual void set_property(std::string property_name, std::string value) = 0;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_CONFIGURATION_INTERFACE_H

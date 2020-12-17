@@ -3,9 +3,9 @@
  * \brief  Interface of the Monitor_Pvt class
  * \author
  *  Álvaro Cebrián Juan, 2019. acebrianjuan(at)gmail.com
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_MONITOR_PVT_H
@@ -22,6 +22,12 @@
 
 #include <boost/serialization/nvp.hpp>
 #include <cstdint>
+
+/** \addtogroup PVT
+ * \{ */
+/** \addtogroup PVT_libs
+ * \{ */
+
 
 /*!
  * \brief This class contains parameters and outputs of the PVT block
@@ -131,4 +137,7 @@ public:
     }
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_MONITOR_PVT_H

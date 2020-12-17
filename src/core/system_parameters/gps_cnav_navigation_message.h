@@ -3,9 +3,9 @@
  * \brief  Interface of a GPS CNAV Data message decoder
  * \author Javier Arribas, 2015. jarribas(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -32,6 +32,11 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
 
 
 /*!
@@ -98,4 +103,7 @@ private:
     bool b_flag_utc_valid{};   //!< If set, it indicates that the utc parameters are filled and are not yet read by the get_utc_model
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_GPS_CNAV_NAVIGATION_MESSAGE_H

@@ -3,9 +3,9 @@
  * \brief  Interface for the RTCM 3.2 Standard
  * \author Carles Fernandez-Prades, 2015. cfernandez(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -32,7 +32,6 @@
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <glog/logging.h>
-#include <pmt/pmt.h>
 #include <algorithm>  // for min
 #include <array>
 #include <bitset>
@@ -48,6 +47,12 @@
 #include <thread>
 #include <utility>
 #include <vector>
+
+/** \addtogroup PVT
+ * \{ */
+/** \addtogroup PVT_libs
+ * \{ */
+
 
 #if USE_BOOST_ASIO_IO_CONTEXT
 using b_io_context = boost::asio::io_context;
@@ -1467,4 +1472,7 @@ private:
     int32_t set_DF420(const Gnss_Synchro& gnss_synchro);
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_RTCM_H

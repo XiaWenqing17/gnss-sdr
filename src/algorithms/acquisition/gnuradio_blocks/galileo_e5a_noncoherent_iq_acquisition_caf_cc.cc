@@ -10,9 +10,9 @@
  *          <li> Marc Molina, 2013. marc.molina.pena@gmail.com
  *          </ul>
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -21,7 +21,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "galileo_e5a_noncoherent_iq_acquisition_caf_cc.h"
@@ -46,11 +46,12 @@ galileo_e5a_noncoherentIQ_acquisition_caf_cc_sptr galileo_e5a_noncoherentIQ_make
     const std::string &dump_filename,
     bool both_signal_components_,
     int CAF_window_hz_,
-    int Zero_padding_)
+    int Zero_padding_,
+    bool enable_monitor_output)
 {
     return galileo_e5a_noncoherentIQ_acquisition_caf_cc_sptr(
         new galileo_e5a_noncoherentIQ_acquisition_caf_cc(sampled_ms, max_dwells, doppler_max, fs_in, samples_per_ms,
-            samples_per_code, bit_transition_flag, dump, dump_filename, both_signal_components_, CAF_window_hz_, Zero_padding_));
+            samples_per_code, bit_transition_flag, dump, dump_filename, both_signal_components_, CAF_window_hz_, Zero_padding_, enable_monitor_output));
 }
 
 
@@ -66,9 +67,10 @@ galileo_e5a_noncoherentIQ_acquisition_caf_cc::galileo_e5a_noncoherentIQ_acquisit
     const std::string &dump_filename,
     bool both_signal_components_,
     int CAF_window_hz_,
-    int Zero_padding_) : gr::block("galileo_e5a_noncoherentIQ_acquisition_caf_cc",
-                             gr::io_signature::make(1, 1, sizeof(gr_complex)),
-                             gr::io_signature::make(0, 0, sizeof(gr_complex)))
+    int Zero_padding_,
+    bool enable_monitor_output) : gr::block("galileo_e5a_noncoherentIQ_acquisition_caf_cc",
+                                      gr::io_signature::make(1, 1, sizeof(gr_complex)),
+                                      gr::io_signature::make(0, 1, sizeof(Gnss_Synchro)))
 {
     this->message_port_register_out(pmt::mp("events"));
     d_sample_counter = 0ULL;  // SAMPLE COUNTER
@@ -96,6 +98,7 @@ galileo_e5a_noncoherentIQ_acquisition_caf_cc::galileo_e5a_noncoherentIQ_acquisit
     d_buffer_count = 0;
     d_both_signal_components = both_signal_components_;
     d_CAF_window_hz = CAF_window_hz_;
+    d_enable_monitor_output = enable_monitor_output;
 
     d_inbuffer.reserve(d_fft_size);
     d_fft_code_I_A.reserve(d_fft_size);
@@ -119,12 +122,17 @@ galileo_e5a_noncoherentIQ_acquisition_caf_cc::galileo_e5a_noncoherentIQ_acquisit
                 }
         }
 
+#if GNURADIO_FFT_USES_TEMPLATES
+    // Direct FFT
+    d_fft_if = std::make_unique<gr::fft::fft_complex_fwd>(d_fft_size);
+    // Inverse FFT
+    d_ifft = std::make_unique<gr::fft::fft_complex_rev>(d_fft_size);
+#else
     // Direct FFT
     d_fft_if = std::make_unique<gr::fft::fft_complex>(d_fft_size, true);
-
     // Inverse FFT
     d_ifft = std::make_unique<gr::fft::fft_complex>(d_fft_size, false);
-
+#endif
     // For dumping samples into a file
     d_dump = dump;
     d_dump_filename = dump_filename;
@@ -285,7 +293,7 @@ void galileo_e5a_noncoherentIQ_acquisition_caf_cc::set_state(int state)
 
 int galileo_e5a_noncoherentIQ_acquisition_caf_cc::general_work(int noutput_items __attribute__((unused)),
     gr_vector_int &ninput_items, gr_vector_const_void_star &input_items,
-    gr_vector_void_star &output_items __attribute__((unused)))
+    gr_vector_void_star &output_items)
 {
     /*
      * By J.Arribas, L.Esteve, M.Molina and M.Sales
@@ -300,6 +308,7 @@ int galileo_e5a_noncoherentIQ_acquisition_caf_cc::general_work(int noutput_items
      */
 
     int acquisition_message = -1;  // 0=STOP_CHANNEL 1=ACQ_SUCCEES 2=ACQ_FAIL
+    int return_value = 0;          // 0=Produces no Gnss_Synchro objects
     /* States: 0 Stop Channel
      *         1 Load the buffer until it reaches fft_size
      *         2 Acquisition algorithm
@@ -726,6 +735,17 @@ int galileo_e5a_noncoherentIQ_acquisition_caf_cc::general_work(int noutput_items
                 this->message_port_pub(pmt::mp("events"), pmt::from_long(acquisition_message));
                 d_sample_counter += static_cast<uint64_t>(ninput_items[0]);  // sample counter
                 consume_each(ninput_items[0]);
+
+                // Copy and push current Gnss_Synchro to monitor queue
+                if (d_enable_monitor_output)
+                    {
+                        auto **out = reinterpret_cast<Gnss_Synchro **>(&output_items[0]);
+                        Gnss_Synchro current_synchro_data = Gnss_Synchro();
+                        current_synchro_data = *d_gnss_synchro;
+                        *out[0] = current_synchro_data;
+                        return_value = 1;  // Number of Gnss_Synchro objects produced
+                    }
+
                 break;
             }
         case 4:
@@ -752,5 +772,5 @@ int galileo_e5a_noncoherentIQ_acquisition_caf_cc::general_work(int noutput_items
             }
         }
 
-    return 0;
+    return return_value;
 }

@@ -6,9 +6,9 @@
  *          <li> Sergi Segura, 2018. sergi.segura.munoz(at)gmail.com
  *          </ul>
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -17,13 +17,13 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "beidou_b1i_pcps_acquisition.h"
 #include "Beidou_B1I.h"
 #include "acq_conf.h"
-#include "beidou_b1i_signal_processing.h"
+#include "beidou_b1i_signal_replica.h"
 #include "configuration_interface.h"
 #include "gnss_sdr_flags.h"
 #include <glog/logging.h>

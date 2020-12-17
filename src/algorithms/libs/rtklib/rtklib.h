@@ -19,7 +19,7 @@
  * Neither the executive binaries nor the shared libraries are required by, used
  * or included in GNSS-SDR.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  * Copyright (C) 2007-2013, T. Takasu
  * Copyright (C) 2017, Javier Arribas
  * Copyright (C) 2017, Carles Fernandez
@@ -27,7 +27,8 @@
  *
  * SPDX-License-Identifier: BSD-2-Clause
  *
- *----------------------------------------------------------------------------*/
+ * -----------------------------------------------------------------------------
+ */
 
 #ifndef GNSS_SDR_RTKLIB_H
 #define GNSS_SDR_RTKLIB_H
@@ -43,6 +44,12 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <string>
+
+/** \addtogroup PVT
+ * \{ */
+/** \addtogroup RTKLIB_Library algorithms_libs_rtklib
+ * Our version of the RTKLIB core library (see http://www.rtklib.com/)
+ * \{ */
 
 
 /* macros --------------------------------------------------------------------*/
@@ -319,6 +326,7 @@ const int MAXSTRMSG = 1024;   //!<  max length of stream message
 
 using fatalfunc_t = void(const char *);  //!<  fatal callback function type
 
+// clang-format off
 #define STR_MODE_R 0x1  /* stream mode: read */
 #define STR_MODE_W 0x2  /* stream mode: write */
 #define STR_MODE_RW 0x3 /* stream mode: read/write */
@@ -340,6 +348,7 @@ using fatalfunc_t = void(const char *);  //!<  fatal callback function type
 #define NR_PPP(opt) (IT_PPP(opt) + ((opt)->tropopt < TROPOPT_EST ? 0 : ((opt)->tropopt == TROPOPT_EST ? 1 : 3))) /* number of solutions */
 #define IB_PPP(s, opt) (NR_PPP(opt) + (s)-1)                                                                     /* state index of phase bias */
 #define NX_PPP(opt) (IB_PPP(MAXSAT, opt) + 1)                                                                    /* number of estimated states */
+// clang-format on
 
 #define NF_RTK(opt) ((opt)->ionoopt == IONOOPT_IFLC ? 1 : (opt)->nf)
 #define NP_RTK(opt) ((opt)->dynamics == 0 ? 3 : 9)
@@ -1307,5 +1316,6 @@ const int STRFMT_NMEA = 19;   /* stream format: NMEA 0183 */
 
 const int MAXSTRRTK = 8; /* max number of stream in RTK server */
 
-
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_RTKLIB_H

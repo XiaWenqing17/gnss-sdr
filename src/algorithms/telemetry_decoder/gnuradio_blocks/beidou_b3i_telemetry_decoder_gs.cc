@@ -3,9 +3,9 @@
  * \brief Implementation of an adapter of a BEIDOU B31 DNAV data decoder block
  * \author Damian Miralles, 2019. dmiralles2009(at)gmail.com
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "beidou_b3i_telemetry_decoder_gs.h"
@@ -26,10 +26,12 @@
 #include "beidou_dnav_utc_model.h"
 #include "display.h"
 #include "gnss_synchro.h"
+#include "tlm_utils.h"
 #include <glog/logging.h>
 #include <gnuradio/io_signature.h>
 #include <pmt/pmt.h>        // for make_any
 #include <pmt/pmt_sugar.h>  // for mp
+#include <cstddef>          // for size_t
 #include <cstdlib>          // for abs
 #include <exception>        // for exception
 #include <iostream>         // for cout
@@ -39,14 +41,14 @@
 
 beidou_b3i_telemetry_decoder_gs_sptr
 beidou_b3i_make_telemetry_decoder_gs(const Gnss_Satellite &satellite,
-    bool dump)
+    const Tlm_Conf &conf)
 {
-    return beidou_b3i_telemetry_decoder_gs_sptr(new beidou_b3i_telemetry_decoder_gs(satellite, dump));
+    return beidou_b3i_telemetry_decoder_gs_sptr(new beidou_b3i_telemetry_decoder_gs(satellite, conf));
 }
 
 
 beidou_b3i_telemetry_decoder_gs::beidou_b3i_telemetry_decoder_gs(
-    const Gnss_Satellite &satellite, bool dump)
+    const Gnss_Satellite &satellite, const Tlm_Conf &conf)
     : gr::block("beidou_b3i_telemetry_decoder_gs",
           gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)),
           gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)))
@@ -58,7 +60,10 @@ beidou_b3i_telemetry_decoder_gs::beidou_b3i_telemetry_decoder_gs(
     // Control messages to tracking block
     this->message_port_register_out(pmt::mp("telemetry_to_trk"));
     // initialize internal vars
-    d_dump = dump;
+    d_dump_filename = conf.dump_filename;
+    d_dump = conf.dump;
+    d_dump_mat = conf.dump_mat;
+    d_remove_dat = conf.remove_dat;
     d_satellite = Gnss_Satellite(satellite.get_system(), satellite.get_PRN());
     LOG(INFO) << "Initializing BeiDou B3I Telemetry Decoding for satellite " << this->d_satellite;
 
@@ -104,8 +109,10 @@ beidou_b3i_telemetry_decoder_gs::beidou_b3i_telemetry_decoder_gs(
 beidou_b3i_telemetry_decoder_gs::~beidou_b3i_telemetry_decoder_gs()
 {
     DLOG(INFO) << "BeiDou B3I Telemetry decoder block (channel " << d_channel << ") destructor called.";
+    size_t pos = 0;
     if (d_dump_file.is_open() == true)
         {
+            pos = d_dump_file.tellp();
             try
                 {
                     d_dump_file.close();
@@ -113,6 +120,24 @@ beidou_b3i_telemetry_decoder_gs::~beidou_b3i_telemetry_decoder_gs()
             catch (const std::exception &ex)
                 {
                     LOG(WARNING) << "Exception in destructor closing the dump file " << ex.what();
+                }
+            if (pos == 0)
+                {
+                    if (!tlm_remove_file(d_dump_filename))
+                        {
+                            LOG(WARNING) << "Error deleting temporary file";
+                        }
+                }
+        }
+    if (d_dump && (pos != 0) && d_dump_mat)
+        {
+            save_tlm_matfile(d_dump_filename);
+            if (d_remove_dat)
+                {
+                    if (!tlm_remove_file(d_dump_filename))
+                        {
+                            LOG(WARNING) << "Error deleting temporary file";
+                        }
                 }
         }
 }
@@ -203,6 +228,7 @@ void beidou_b3i_telemetry_decoder_gs::decode_subframe(float *frame_symbols)
 {
     // 1. Transform from symbols to bits
     std::string data_bits;
+    data_bits.reserve(BEIDOU_DNAV_WORDS_SUBFRAME * BEIDOU_DNAV_WORD_LENGTH_BITS);
     std::array<int32_t, 30> dec_word_bits{};
 
     // Decode each word in subframe
@@ -256,7 +282,7 @@ void beidou_b3i_telemetry_decoder_gs::decode_subframe(float *frame_symbols)
             const std::shared_ptr<Beidou_Dnav_Utc_Model> tmp_obj =
                 std::make_shared<Beidou_Dnav_Utc_Model>(d_nav.get_utc_model());
             this->message_port_pub(pmt::mp("telemetry"), pmt::make_any(tmp_obj));
-            LOG(INFO) << "BEIDOU DNAV UTC Model have been received in channel"
+            LOG(INFO) << "BEIDOU DNAV UTC Model data have been received in channel"
                       << d_channel << " from satellite " << d_satellite;
             std::cout << TEXT_YELLOW << "New BEIDOU B3I DNAV utc model message received in channel "
                       << d_channel << ": UTC model parameters from satellite "
@@ -268,7 +294,7 @@ void beidou_b3i_telemetry_decoder_gs::decode_subframe(float *frame_symbols)
             const std::shared_ptr<Beidou_Dnav_Iono> tmp_obj =
                 std::make_shared<Beidou_Dnav_Iono>(d_nav.get_iono());
             this->message_port_pub(pmt::mp("telemetry"), pmt::make_any(tmp_obj));
-            LOG(INFO) << "BEIDOU DNAV Iono have been received in channel" << d_channel
+            LOG(INFO) << "BEIDOU DNAV Iono data have been received in channel" << d_channel
                       << " from satellite " << d_satellite;
             std::cout << TEXT_YELLOW << "New BEIDOU B3I DNAV Iono message received in channel "
                       << d_channel << ": Iono model parameters from satellite "
@@ -281,7 +307,7 @@ void beidou_b3i_telemetry_decoder_gs::decode_subframe(float *frame_symbols)
             //            std::make_shared<Beidou_Dnav_Almanac>(d_nav.get_almanac(slot_nbr));
             //            this->message_port_pub(pmt::mp("telemetry"),
             //            pmt::make_any(tmp_obj));
-            LOG(INFO) << "BEIDOU DNAV Almanac have been received in channel"
+            LOG(INFO) << "BEIDOU DNAV Almanac data have been received in channel"
                       << d_channel << " from satellite " << d_satellite << '\n';
             std::cout << TEXT_YELLOW << "New BEIDOU B3I DNAV almanac received in channel " << d_channel
                       << " from satellite " << d_satellite << TEXT_RESET << '\n';
@@ -364,7 +390,6 @@ void beidou_b3i_telemetry_decoder_gs::set_channel(int32_t channel)
                 {
                     try
                         {
-                            d_dump_filename = "telemetry";
                             d_dump_filename.append(std::to_string(d_channel));
                             d_dump_filename.append(".dat");
                             d_dump_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -614,12 +639,17 @@ int beidou_b3i_telemetry_decoder_gs::general_work(
                         {
                             double tmp_double;
                             uint64_t tmp_ulong_int;
+                            int32_t tmp_int;
                             tmp_double = static_cast<double>(d_TOW_at_current_symbol_ms) / 1000.0;
                             d_dump_file.write(reinterpret_cast<char *>(&tmp_double), sizeof(double));
                             tmp_ulong_int = current_symbol.Tracking_sample_counter;
                             d_dump_file.write(reinterpret_cast<char *>(&tmp_ulong_int), sizeof(uint64_t));
                             tmp_double = static_cast<double>(d_TOW_at_Preamble_ms) / 1000.0;
                             d_dump_file.write(reinterpret_cast<char *>(&tmp_double), sizeof(double));
+                            tmp_int = (current_symbol.Prompt_I > 0.0 ? 1 : -1);
+                            d_dump_file.write(reinterpret_cast<char *>(&tmp_int), sizeof(int32_t));
+                            tmp_int = static_cast<int32_t>(current_symbol.PRN);
+                            d_dump_file.write(reinterpret_cast<char *>(&tmp_int), sizeof(int32_t));
                         }
                     catch (const std::ifstream::failure &e)
                         {

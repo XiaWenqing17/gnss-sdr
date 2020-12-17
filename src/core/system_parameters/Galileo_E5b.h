@@ -4,7 +4,7 @@
  * \author Piyush Gupta, 2020. piyush04111999@gmail.com
  * \note Code added as part of GSoC 2020 program.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
  * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GALILEO_E5B_H
@@ -26,6 +26,11 @@
 #include <cstddef>
 #include <cstdint>
 
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
+
 
 // Carrier and code frequencies
 constexpr double GALILEO_E5B_FREQ_HZ = FREQ7;                 //!< Galileo E5b carrier frequency [Hz]
@@ -33,6 +38,7 @@ constexpr double GALILEO_E5B_CODE_CHIP_RATE_CPS = 1.023e7;    //!< Galileo E5b c
 constexpr double GALILEO_E5B_I_TIERED_CODE_PERIOD_S = 0.004;  //!< Galileo E5b-I tiered code period [s]
 constexpr double GALILEO_E5B_Q_TIERED_CODE_PERIOD_S = 0.100;  //!< Galileo E5b-Q tiered code period [s]
 constexpr double GALILEO_E5B_CODE_PERIOD_S = 0.001;           //!< Galileo E5b primary code period [s]
+constexpr int32_t GALILEO_E5B_CODE_PERIOD_MS = 1;             //!< Galileo E5b primary code period [ms]
 constexpr int32_t GALILEO_E5B_CODE_LENGTH_CHIPS = 10230;      //!< Galileo E5b primary code length [chips]
 constexpr int32_t GALILEO_E5B_I_SECONDARY_CODE_LENGTH = 4;    //!< Galileo E5b-I secondary code length [chips]
 constexpr int32_t GALILEO_E5B_Q_SECONDARY_CODE_LENGTH = 100;  //!< Galileo E5b-Q secondary code length [chips]
@@ -213,4 +219,6 @@ constexpr char GALILEO_E5B_Q_SECONDARY_CODE[GALILEO_E5B_NUMBER_OF_CODES][101] = 
     "0110010000110001000010111010110110001110101101011011001101101110001110000110010001101010111100000001"};
 
 
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GALILEO_E5B_H

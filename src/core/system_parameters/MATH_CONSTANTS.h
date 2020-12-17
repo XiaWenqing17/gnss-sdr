@@ -3,9 +3,9 @@
  * \brief  Defines useful mathematical constants and their scaled versions
  * \author Javier Arribas, 2013. jarribas(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,11 +14,17 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_MATH_CONSTANTS_H
 #define GNSS_SDR_MATH_CONSTANTS_H
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
+
 
 constexpr double GNSS_OMEGA_EARTH_DOT = 7.2921151467e-5;  //!< Default Earth rotation rate, [rad/s]
 constexpr double SPEED_OF_LIGHT_M_S = 299792458.0;        //!< Speed of light in vacuum [m/s]
@@ -121,4 +127,7 @@ constexpr double AS2R = D2R / 3600.0;    //!< arc sec to radian
 
 constexpr double AU = 149597870691.0;  //!< 1 Astronomical Unit AU (m) distance from Earth to the Sun.
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_MATH_CONSTANTS_H

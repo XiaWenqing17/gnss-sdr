@@ -4,9 +4,9 @@
  * \author Álvaro Cebrián Juan, 2018. acebrianjuan(at)gmail.com
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -29,6 +29,7 @@
 #include <iostream>   // for cout, cerr
 #include <sstream>    // for stringstream
 
+// clang-format off
 #if HAS_STD_FILESYSTEM
 #include <system_error>
 namespace errorlib = std;
@@ -47,6 +48,7 @@ namespace fs = std::filesystem;
 namespace fs = boost::filesystem;
 namespace errorlib = boost::system;
 #endif
+// clang-format on
 
 
 Gpx_Printer::Gpx_Printer(const std::string& base_path)
@@ -162,7 +164,7 @@ bool Gpx_Printer::set_headers(const std::string& filename, bool time_tag_name)
 }
 
 
-bool Gpx_Printer::print_position(const Pvt_Solution* position, bool print_average_values)
+bool Gpx_Printer::print_position(const Pvt_Solution* const position, bool print_average_values)
 {
     double latitude;
     double longitude;

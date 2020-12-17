@@ -3,9 +3,9 @@
  * \brief  Defines parameters for GPS CNAV
  * \author Antonio Ramos, 2017. antonio.ramos(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -25,6 +25,11 @@
 #include <cstdint>
 #include <utility>  // std::pair
 #include <vector>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
 
 
 // CNAV GPS NAVIGATION MESSAGE STRUCTURE
@@ -161,4 +166,6 @@ constexpr int32_t CNAV_DELTA_TLSF_LSB = 1;
 // TODO: Add more frames (Almanac, etc...)
 
 
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GPS_CNAV_H

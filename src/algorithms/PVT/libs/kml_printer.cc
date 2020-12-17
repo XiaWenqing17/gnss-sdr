@@ -5,9 +5,9 @@
  *         Álvaro Cebrián Juan, 2018. acebrianjuan(at)gmail.com
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "kml_printer.h"
@@ -31,6 +31,7 @@
 #include <sys/stat.h>   // for S_IXUSR | S_IRWXG | S_IRWXO
 #include <sys/types.h>  // for mode_t
 
+// clang-format off
 #if HAS_STD_FILESYSTEM
 #include <system_error>
 namespace errorlib = std;
@@ -49,6 +50,7 @@ namespace fs = std::filesystem;
 namespace fs = boost::filesystem;
 namespace errorlib = boost::system;
 #endif
+// clang-format on
 
 
 Kml_Printer::Kml_Printer(const std::string& base_path)
@@ -231,7 +233,7 @@ bool Kml_Printer::set_headers(const std::string& filename, bool time_tag_name)
 }
 
 
-bool Kml_Printer::print_position(const Pvt_Solution* position, bool print_average_values)
+bool Kml_Printer::print_position(const Pvt_Solution* const position, bool print_average_values)
 {
     double latitude;
     double longitude;

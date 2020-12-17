@@ -4,9 +4,9 @@
  * \author Javier Arribas 2018. jarribas(at)cttc.es
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,29 +15,28 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GNSS_SDR_SAMPLE_COUNTER_H
 #define GNSS_SDR_GNSS_SDR_SAMPLE_COUNTER_H
 
+#include "gnss_block_interface.h"
 #include <gnuradio/sync_decimator.h>
 #include <gnuradio/types.h>  // for gr_vector_const_void_star
 #include <cstddef>           // for size_t
 #include <cstdint>
-#if GNURADIO_USES_STD_POINTERS
-#include <memory>
-#else
-#include <boost/shared_ptr.hpp>
-#endif
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup Core_Receiver_Library
+ * Utilities for the core GNSS receiver.
+ * \{ */
+
 
 class gnss_sdr_sample_counter;
 
-#if GNURADIO_USES_STD_POINTERS
-using gnss_sdr_sample_counter_sptr = std::shared_ptr<gnss_sdr_sample_counter>;
-#else
-using gnss_sdr_sample_counter_sptr = boost::shared_ptr<gnss_sdr_sample_counter>;
-#endif
+using gnss_sdr_sample_counter_sptr = gnss_shared_ptr<gnss_sdr_sample_counter>;
 
 gnss_sdr_sample_counter_sptr gnss_sdr_make_sample_counter(
     double _fs,
@@ -78,4 +77,7 @@ private:
     bool flag_enable_send_msg;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GNSS_SDR_SAMPLE_COUNTER_H

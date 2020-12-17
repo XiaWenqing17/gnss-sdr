@@ -7,7 +7,7 @@
  * Based on https://stackoverflow.com/a/17902439
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
  * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
@@ -18,7 +18,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GNSS_SDR_MAKE_UNIQUE_H
@@ -30,6 +30,12 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
+
+/** \addtogroup Algorithms_Library
+ * \{ */
+/** \addtogroup Algorithm_libs algorithms_libs
+ * \{ */
+
 
 namespace std
 {
@@ -73,4 +79,7 @@ make_unique(Args&&...) = delete;
 
 #endif  // __cplusplus == 201103L
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GNSS_SDR_MAKE_UNIQUE_H

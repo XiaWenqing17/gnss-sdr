@@ -4,9 +4,9 @@
  * acquisition block based on the PCPS algorithm.
  * \author Carles Fernandez, 2018. cfernandez(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_ACQ_CONF_H
@@ -24,6 +24,13 @@
 #include "configuration_interface.h"
 #include <cstdint>
 #include <string>
+
+/** \addtogroup Acquisition
+ * \{ */
+/** \addtogroup acquisition_libs acquisition_libs
+ * Library with utilities for GNSS signal acquisition
+ * \{ */
+
 
 class Acq_Conf
 {
@@ -67,6 +74,7 @@ public:
     bool blocking_on_standby;  // enable it only for unit testing to avoid sample consume on idle status
     bool make_2_steps;
     bool use_automatic_resampler;
+    bool enable_monitor_output;
 
 private:
     void SetDerivedParams();
@@ -74,4 +82,7 @@ private:
     void ConfigureAutomaticResampler(double opt_freq);
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_ACQ_CONF_H

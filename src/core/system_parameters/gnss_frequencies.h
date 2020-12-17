@@ -4,9 +4,9 @@
  * \author Carles Fernandez, 2017. cfernandez(at)cttc.es
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,12 +15,18 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
 #ifndef GNSS_SDR_GNSS_FREQUENCIES_H
 #define GNSS_SDR_GNSS_FREQUENCIES_H
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
+
 
 constexpr double FREQ1 = 1.57542e9;       //!<  L1/E1  frequency (Hz)
 constexpr double FREQ2 = 1.22760e9;       //!<  L2     frequency (Hz)
@@ -38,4 +44,7 @@ constexpr double FREQ1_BDS = 1.561098e9;  //!<  BeiDou B1 frequency (Hz)
 constexpr double FREQ2_BDS = 1.20714e9;   //!<  BeiDou B2 frequency (Hz)
 constexpr double FREQ3_BDS = 1.26852e9;   //!<  BeiDou B3 frequency (Hz)
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_GNSS_FREQUENCIES_H

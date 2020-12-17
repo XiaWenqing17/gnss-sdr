@@ -3,9 +3,9 @@
  * \brief Interface of a hybrid FLL and PLL filter for tracking carrier loop
  * \author Javier Arribas, 2011. jarribas(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,11 +14,17 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_TRACKING_FLL_PLL_FILTER_H
 #define GNSS_SDR_TRACKING_FLL_PLL_FILTER_H
+
+/** \addtogroup Tracking
+ * \{ */
+/** \addtogroup Tracking_libs
+ * \{ */
+
 
 /*!
  * \brief This class implements a hybrid FLL and PLL filter for tracking carrier loop
@@ -47,4 +53,7 @@ private:
     int d_order;
 };
 
+
+/** \} */
+/** \} */
 #endif

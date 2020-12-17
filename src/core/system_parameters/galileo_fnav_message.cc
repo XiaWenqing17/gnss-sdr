@@ -9,9 +9,9 @@
  *          </ul>
  *
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "galileo_fnav_message.h"
@@ -385,7 +385,7 @@ bool Galileo_Fnav_Message::have_new_almanac()  // Check if we have a new almanac
 {
     if ((flag_almanac_1 == true) and (flag_almanac_2 == true))
         {
-            // All almanac have been received
+            // All Almanac data have been received
             flag_almanac_1 = false;
             flag_almanac_2 = false;
             flag_all_almanac = true;

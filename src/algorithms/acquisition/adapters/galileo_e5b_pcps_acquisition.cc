@@ -5,7 +5,7 @@
  * \author Piyush Gupta, 2020. piyush04111999@gmail.com
  * \note Code added as part of GSoC 2020 program.
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
  * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
@@ -16,14 +16,14 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #include "galileo_e5b_pcps_acquisition.h"
 #include "Galileo_E5b.h"
 #include "acq_conf.h"
 #include "configuration_interface.h"
-#include "galileo_e5_signal_processing.h"
+#include "galileo_e5_signal_replica.h"
 #include "gnss_sdr_flags.h"
 #include <glog/logging.h>
 #include <volk_gnsssdr/volk_gnsssdr_complex.h>

@@ -3,9 +3,9 @@
  * \brief Implementation of a CNAV message demodulator block
  * \author Antonio Ramos, 2017. antonio.ramos(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -24,28 +24,30 @@
 #include "gps_cnav_ephemeris.h"
 #include "gps_cnav_iono.h"
 #include "gps_cnav_utc_model.h"  // for Gps_CNAV_Utc_Model
+#include "tlm_utils.h"
 #include <glog/logging.h>
 #include <gnuradio/io_signature.h>
 #include <pmt/pmt.h>        // for make_any
 #include <pmt/pmt_sugar.h>  // for mp
 #include <bitset>           // for std::bitset
+#include <cstddef>          // for size_t
 #include <cstdlib>          // for std::llabs
 #include <exception>        // for std::exception
 #include <iostream>         // for std::cout
 #include <memory>           // for shared_ptr, make_shared
 
-
 gps_l5_telemetry_decoder_gs_sptr
-gps_l5_make_telemetry_decoder_gs(const Gnss_Satellite &satellite, bool dump)
+gps_l5_make_telemetry_decoder_gs(const Gnss_Satellite &satellite, const Tlm_Conf &conf)
 {
-    return gps_l5_telemetry_decoder_gs_sptr(new gps_l5_telemetry_decoder_gs(satellite, dump));
+    return gps_l5_telemetry_decoder_gs_sptr(new gps_l5_telemetry_decoder_gs(satellite, conf));
 }
 
 
 gps_l5_telemetry_decoder_gs::gps_l5_telemetry_decoder_gs(
-    const Gnss_Satellite &satellite, bool dump) : gr::block("gps_l5_telemetry_decoder_gs",
-                                                      gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)),
-                                                      gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)))
+    const Gnss_Satellite &satellite,
+    const Tlm_Conf &conf) : gr::block("gps_l5_telemetry_decoder_gs",
+                                gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)),
+                                gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)))
 {
     // prevent telemetry symbols accumulation in output buffers
     this->set_max_noutput_items(1);
@@ -58,7 +60,10 @@ gps_l5_telemetry_decoder_gs::gps_l5_telemetry_decoder_gs(
     d_max_symbols_without_valid_frame = GPS_L5_CNAV_DATA_PAGE_BITS * GPS_L5_SYMBOLS_PER_BIT * 10;  // rise alarm if 20 consecutive subframes have no valid CRC
 
     // initialize internal vars
-    d_dump = dump;
+    d_dump_filename = conf.dump_filename;
+    d_dump = conf.dump;
+    d_dump_mat = conf.dump_mat;
+    d_remove_dat = conf.remove_dat;
     d_satellite = Gnss_Satellite(satellite.get_system(), satellite.get_PRN());
     DLOG(INFO) << "GPS L5 TELEMETRY PROCESSING: satellite " << d_satellite;
     d_channel = 0;
@@ -76,8 +81,10 @@ gps_l5_telemetry_decoder_gs::gps_l5_telemetry_decoder_gs(
 gps_l5_telemetry_decoder_gs::~gps_l5_telemetry_decoder_gs()
 {
     DLOG(INFO) << "GPS L5 Telemetry decoder block (channel " << d_channel << ") destructor called.";
+    size_t pos = 0;
     if (d_dump_file.is_open() == true)
         {
+            pos = d_dump_file.tellp();
             try
                 {
                     d_dump_file.close();
@@ -85,6 +92,24 @@ gps_l5_telemetry_decoder_gs::~gps_l5_telemetry_decoder_gs()
             catch (const std::exception &ex)
                 {
                     LOG(WARNING) << "Exception in destructor closing the dump file " << ex.what();
+                }
+            if (pos == 0)
+                {
+                    if (!tlm_remove_file(d_dump_filename))
+                        {
+                            LOG(WARNING) << "Error deleting temporary file";
+                        }
+                }
+        }
+    if (d_dump && (pos != 0) && d_dump_mat)
+        {
+            save_tlm_matfile(d_dump_filename);
+            if (d_remove_dat)
+                {
+                    if (!tlm_remove_file(d_dump_filename))
+                        {
+                            LOG(WARNING) << "Error deleting temporary file";
+                        }
                 }
         }
 }
@@ -110,7 +135,6 @@ void gps_l5_telemetry_decoder_gs::set_channel(int32_t channel)
                 {
                     try
                         {
-                            d_dump_filename = "telemetry_L5_";
                             d_dump_filename.append(std::to_string(d_channel));
                             d_dump_filename.append(".dat");
                             d_dump_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -156,7 +180,7 @@ int gps_l5_telemetry_decoder_gs::general_work(int noutput_items __attribute__((u
         {
             if ((d_sample_counter - d_last_valid_preamble) > d_max_symbols_without_valid_frame)
                 {
-                    int message = 1;  // bad telemetry
+                    const int message = 1;  // bad telemetry
                     this->message_port_pub(pmt::mp("telemetry_to_trk"), pmt::make_any(message));
                     d_sent_tlm_failed_msg = true;
                 }
@@ -164,7 +188,7 @@ int gps_l5_telemetry_decoder_gs::general_work(int noutput_items __attribute__((u
 
     cnav_msg_t msg;
     uint32_t delay;
-    uint8_t symbol_clip = static_cast<uint8_t>(current_synchro_data.Prompt_Q > 0) * 255;
+    const auto symbol_clip = static_cast<uint8_t>(current_synchro_data.Prompt_Q > 0) * 255;
     // 2. Add the telemetry decoder information
     // check if new CNAV frame is available
     if (cnav_msg_decoder_add_symbol(&d_cnav_decoder, symbol_clip, &msg, &delay) == true)
@@ -263,12 +287,17 @@ int gps_l5_telemetry_decoder_gs::general_work(int noutput_items __attribute__((u
                         {
                             double tmp_double;
                             uint64_t tmp_ulong_int;
+                            int32_t tmp_int;
                             tmp_double = static_cast<double>(d_TOW_at_current_symbol_ms) / 1000.0;
                             d_dump_file.write(reinterpret_cast<char *>(&tmp_double), sizeof(double));
                             tmp_ulong_int = current_synchro_data.Tracking_sample_counter;
                             d_dump_file.write(reinterpret_cast<char *>(&tmp_ulong_int), sizeof(uint64_t));
                             tmp_double = static_cast<double>(d_TOW_at_Preamble_ms) / 1000.0;
                             d_dump_file.write(reinterpret_cast<char *>(&tmp_double), sizeof(double));
+                            tmp_int = (current_synchro_data.Prompt_Q > 0.0 ? 1 : -1);
+                            d_dump_file.write(reinterpret_cast<char *>(&tmp_int), sizeof(int32_t));
+                            tmp_int = static_cast<int32_t>(current_synchro_data.PRN);
+                            d_dump_file.write(reinterpret_cast<char *>(&tmp_int), sizeof(int32_t));
                         }
                     catch (const std::ifstream::failure &e)
                         {

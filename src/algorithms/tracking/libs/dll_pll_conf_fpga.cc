@@ -5,9 +5,9 @@
  * \author Marc Majoral, 2019. mmajoral(at)cttc.cat
  * \author Javier Arribas, 2018. jarribas(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -75,8 +75,6 @@ Dll_Pll_Conf_Fpga::Dll_Pll_Conf_Fpga()
     signal[1] = 'C';
     signal[2] = '\0';
     device_name = "/dev/uio";
-    dev_file_num = 3;
-    num_prev_assigned_ch = 0;
     code_length_chips = 0U;
     code_samples_per_chip = 0U;
     ca_codes = nullptr;

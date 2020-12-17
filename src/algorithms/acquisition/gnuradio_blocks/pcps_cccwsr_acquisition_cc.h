@@ -9,9 +9,9 @@
  * New Composite GNSS Signals", IEEE Transactions On Aerospace and
  * Electronic Systems vol. 45 no. 3, July 2009, section IV
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_PCPS_CCCWSR_ACQUISITION_CC_H
@@ -36,19 +36,16 @@
 #include <string>
 #include <utility>
 #include <vector>
-#if GNURADIO_USES_STD_POINTERS
-#else
-#include <boost/shared_ptr.hpp>
-#endif
+
+/** \addtogroup Acquisition
+ * \{ */
+/** \addtogroup Acq_gnuradio_blocks
+ * \{ */
 
 
 class pcps_cccwsr_acquisition_cc;
 
-#if GNURADIO_USES_STD_POINTERS
-using pcps_cccwsr_acquisition_cc_sptr = std::shared_ptr<pcps_cccwsr_acquisition_cc>;
-#else
-using pcps_cccwsr_acquisition_cc_sptr = boost::shared_ptr<pcps_cccwsr_acquisition_cc>;
-#endif
+using pcps_cccwsr_acquisition_cc_sptr = gnss_shared_ptr<pcps_cccwsr_acquisition_cc>;
 
 pcps_cccwsr_acquisition_cc_sptr pcps_cccwsr_make_acquisition_cc(
     uint32_t sampled_ms,
@@ -58,7 +55,8 @@ pcps_cccwsr_acquisition_cc_sptr pcps_cccwsr_make_acquisition_cc(
     int32_t samples_per_ms,
     int32_t samples_per_code,
     bool dump,
-    const std::string& dump_filename);
+    const std::string& dump_filename,
+    bool enable_monitor_output);
 
 /*!
  * \brief This class implements a Parallel Code Phase Search Acquisition with
@@ -176,20 +174,25 @@ private:
     pcps_cccwsr_make_acquisition_cc(uint32_t sampled_ms, uint32_t max_dwells,
         uint32_t doppler_max, int64_t fs_in,
         int32_t samples_per_ms, int32_t samples_per_code,
-        bool dump, const std::string& dump_filename);
+        bool dump, const std::string& dump_filename, bool enable_monitor_output);
 
     pcps_cccwsr_acquisition_cc(uint32_t sampled_ms, uint32_t max_dwells,
         uint32_t doppler_max, int64_t fs_in,
         int32_t samples_per_ms, int32_t samples_per_code,
-        bool dump, const std::string& dump_filename);
+        bool dump, const std::string& dump_filename, bool enable_monitor_output);
 
     void calculate_magnitudes(gr_complex* fft_begin, int32_t doppler_shift,
         int32_t doppler_offset);
 
     std::weak_ptr<ChannelFsm> d_channel_fsm;
 
+#if GNURADIO_FFT_USES_TEMPLATES
+    std::unique_ptr<gr::fft::fft_complex_fwd> d_fft_if;
+    std::unique_ptr<gr::fft::fft_complex_rev> d_ifft;
+#else
     std::unique_ptr<gr::fft::fft_complex> d_fft_if;
     std::unique_ptr<gr::fft::fft_complex> d_ifft;
+#endif
 
     std::vector<std::vector<gr_complex>> d_grid_doppler_wipeoffs;
     std::vector<gr_complex> d_fft_code_data;
@@ -231,6 +234,10 @@ private:
 
     bool d_active;
     bool d_dump;
+    bool d_enable_monitor_output;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_PCPS_CCCWSR_ACQUISITION_CC_H

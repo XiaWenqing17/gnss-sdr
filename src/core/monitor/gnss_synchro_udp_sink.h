@@ -4,9 +4,9 @@
  * over udp to one or multiple endponits
  * \author Álvaro Cebrián Juan, 2018. acebrianjuan(at)gmail.com
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GNSS_SYNCHRO_UDP_SINK_H
@@ -28,6 +28,12 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup Gnss_Synchro_Monitor
+ * \{ */
+
 
 #if USE_BOOST_ASIO_IO_CONTEXT
 using b_io_context = boost::asio::io_context;
@@ -55,4 +61,6 @@ private:
 };
 
 
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GNSS_SYNCHRO_UDP_SINK_H

@@ -9,9 +9,9 @@
  * A Software-Defined GPS and Galileo Receiver. A Single-Frequency
  * Approach, Birkhauser, 2007
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -20,7 +20,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GPS_L2_M_DLL_PLL_TRACKING_FPGA_H
@@ -31,6 +31,12 @@
 #include <gnuradio/runtime_types.h>
 #include <cstddef>
 #include <string>
+
+/** \addtogroup Tracking
+ * \{ */
+/** \addtogroup Tracking_adapters
+ * \{ */
+
 
 class Gnss_Synchro;
 class ConfigurationInterface;
@@ -89,6 +95,11 @@ public:
     void stop_tracking() override;
 
 private:
+    const std::string default_device_name = "multicorrelator_resampler_S00_AXI";  // UIO device name
+
+    std::string device_name;
+    uint32_t num_prev_assigned_ch;
+
     static const uint32_t NUM_PRNs = 32;
     dll_pll_veml_tracking_fpga_sptr tracking_fpga_sc;
     unsigned int channel_;
@@ -98,4 +109,7 @@ private:
     int* d_ca_codes;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GPS_L2_M_DLL_PLL_TRACKING_FPGA_H

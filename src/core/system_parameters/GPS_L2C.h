@@ -3,9 +3,9 @@
  * \brief  Defines system parameters for GPS L2C signal
  * \author Javier Arribas, 2015. jarribas(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -27,6 +27,11 @@
 #include <cstdint>
 #include <utility>  // std::pair
 #include <vector>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
 
 
 // carrier and code frequencies
@@ -80,4 +85,6 @@ constexpr int32_t GPS_L2C_M_INIT_REG[115] =
         0132720621, 0434015513, 0566721727, 0140633660};
 
 
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GPS_L2C_H

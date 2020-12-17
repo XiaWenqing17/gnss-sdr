@@ -4,7 +4,7 @@
  * observables block
  * \author Javier Arribas, 2020. jarribas(at)cttc.es
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
  * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_OBS_CONF_H
@@ -23,6 +23,12 @@
 
 #include <cstdint>
 #include <string>
+
+/** \addtogroup Observables
+ * \{ */
+/** \addtogroup Observables_libs observables_libs
+ * Utilities for GNSS observables configuration.
+ * \{ */
 
 class Obs_Conf
 {
@@ -38,4 +44,6 @@ public:
     bool dump_mat;
 };
 
-#endif
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_OBS_CONF_H

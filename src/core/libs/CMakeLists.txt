@@ -44,6 +44,17 @@ if(ENABLE_FPGA)
     )
 endif()
 
+if(ENABLE_FPGA OR ENABLE_AD9361)
+    set(CORE_LIBS_SOURCES
+        ${CORE_LIBS_SOURCES}
+        uio_fpga.cc
+    )
+    set(CORE_LIBS_HEADERS
+        ${CORE_LIBS_HEADERS}
+        uio_fpga.h
+    )
+endif()
+
 list(SORT CORE_LIBS_HEADERS)
 list(SORT CORE_LIBS_SOURCES)
 
@@ -87,6 +98,11 @@ if(GNURADIO_USES_STD_POINTERS)
     )
 endif()
 
+target_include_directories(core_libs
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}/src/core/interfaces
+)
+
 if(USE_GENERIC_LAMBDAS)
     set(has_generic_lambdas HAS_GENERIC_LAMBDA=1)
     set(no_has_generic_lambdas HAS_GENERIC_LAMBDA=0)
@@ -107,6 +123,18 @@ if(USE_BOOST_BIND_PLACEHOLDERS)
         PRIVATE
             -DUSE_BOOST_BIND_PLACEHOLDERS=1
     )
+endif()
+
+if(ENABLE_FPGA OR ENABLE_AD9361)
+    if(FILESYSTEM_FOUND)
+        target_compile_definitions(core_libs PRIVATE -DHAS_STD_FILESYSTEM=1)
+        if(find_experimental)
+            target_compile_definitions(core_libs PRIVATE -DHAS_STD_FILESYSTEM_EXPERIMENTAL=1)
+        endif()
+        target_link_libraries(core_libs PRIVATE std::filesystem)
+    else()
+        target_link_libraries(core_libs PRIVATE Boost::filesystem Boost::system)
+    endif()
 endif()
 
 if(ENABLE_CLANG_TIDY)

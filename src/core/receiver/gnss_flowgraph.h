@@ -46,6 +46,12 @@
 #include "gnss_sdr_fpga_sample_counter.h"
 #endif
 
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup Core_Receiver
+ * \{ */
+
+
 class ChannelInterface;
 class ConfigurationInterface;
 class GNSSBlockInterface;
@@ -191,6 +197,8 @@ private:
     std::vector<gr::blocks::null_sink::sptr> null_sinks_;
 
     gr::basic_block_sptr GnssSynchroMonitor_;
+    gr::basic_block_sptr GnssSynchroAcquisitionMonitor_;
+    gr::basic_block_sptr GnssSynchroTrackingMonitor_;
     channel_status_msg_receiver_sptr channels_status_;  // class that receives and stores the current status of the receiver channels
     gnss_sdr_sample_counter_sptr ch_out_sample_counter_;
 #if ENABLE_FPGA
@@ -206,6 +214,7 @@ private:
     std::list<Gnss_Signal> available_GAL_1B_signals_;
     std::list<Gnss_Signal> available_GAL_5X_signals_;
     std::list<Gnss_Signal> available_GAL_7X_signals_;
+    std::list<Gnss_Signal> available_GAL_E6_signals_;
     std::list<Gnss_Signal> available_GLO_1G_signals_;
     std::list<Gnss_Signal> available_GLO_2G_signals_;
     std::list<Gnss_Signal> available_BDS_B1_signals_;
@@ -220,6 +229,7 @@ private:
         evGAL_1B,
         evGAL_5X,
         evGAL_7X,
+        evGAL_E6,
         evGLO_1G,
         evGLO_2G,
         evBDS_B1,
@@ -240,6 +250,11 @@ private:
     bool running_;
     bool multiband_;
     bool enable_monitor_;
+    bool enable_acquisition_monitor_;
+    bool enable_tracking_monitor_;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_GNSS_FLOWGRAPH_H

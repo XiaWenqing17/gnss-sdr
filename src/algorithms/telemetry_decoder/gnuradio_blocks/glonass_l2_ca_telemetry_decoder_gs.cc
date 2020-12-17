@@ -3,9 +3,9 @@
  * \brief Implementation of a GLONASS L2 C/A NAV data decoder block
  * \author Damian Miralles, 2018. dmiralles2009(at)gmail.com
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -23,11 +23,13 @@
 #include "glonass_gnav_almanac.h"
 #include "glonass_gnav_ephemeris.h"
 #include "glonass_gnav_utc_model.h"
+#include "tlm_utils.h"
 #include <glog/logging.h>
 #include <gnuradio/io_signature.h>
 #include <pmt/pmt.h>        // for make_any
 #include <pmt/pmt_sugar.h>  // for mp
 #include <cmath>            // for floor, round
+#include <cstddef>          // for size_t
 #include <cstdlib>          // for abs
 #include <exception>        // for exception
 #include <iostream>         // for cout
@@ -37,16 +39,16 @@
 
 
 glonass_l2_ca_telemetry_decoder_gs_sptr
-glonass_l2_ca_make_telemetry_decoder_gs(const Gnss_Satellite &satellite, bool dump)
+glonass_l2_ca_make_telemetry_decoder_gs(const Gnss_Satellite &satellite, const Tlm_Conf &conf)
 {
-    return glonass_l2_ca_telemetry_decoder_gs_sptr(new glonass_l2_ca_telemetry_decoder_gs(satellite, dump));
+    return glonass_l2_ca_telemetry_decoder_gs_sptr(new glonass_l2_ca_telemetry_decoder_gs(satellite, conf));
 }
 
 
 glonass_l2_ca_telemetry_decoder_gs::glonass_l2_ca_telemetry_decoder_gs(
     const Gnss_Satellite &satellite,
-    bool dump) : gr::block("glonass_l2_ca_telemetry_decoder_gs", gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)),
-                     gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)))
+    const Tlm_Conf &conf) : gr::block("glonass_l2_ca_telemetry_decoder_gs", gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)),
+                                gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)))
 {
     // prevent telemetry symbols accumulation in output buffers
     this->set_max_noutput_items(1);
@@ -55,7 +57,10 @@ glonass_l2_ca_telemetry_decoder_gs::glonass_l2_ca_telemetry_decoder_gs(
     // Control messages to tracking block
     this->message_port_register_out(pmt::mp("telemetry_to_trk"));
     // initialize internal vars
-    d_dump = dump;
+    d_dump_filename = conf.dump_filename;
+    d_dump = conf.dump;
+    d_dump_mat = conf.dump_mat;
+    d_remove_dat = conf.remove_dat;
     d_satellite = Gnss_Satellite(satellite.get_system(), satellite.get_PRN());
     LOG(INFO) << "Initializing GLONASS L2 CA TELEMETRY DECODING";
 
@@ -97,8 +102,10 @@ glonass_l2_ca_telemetry_decoder_gs::glonass_l2_ca_telemetry_decoder_gs(
 glonass_l2_ca_telemetry_decoder_gs::~glonass_l2_ca_telemetry_decoder_gs()
 {
     DLOG(INFO) << "Glonass L2 Telemetry decoder block (channel " << d_channel << ") destructor called.";
+    size_t pos = 0;
     if (d_dump_file.is_open() == true)
         {
+            pos = d_dump_file.tellp();
             try
                 {
                     d_dump_file.close();
@@ -106,6 +113,24 @@ glonass_l2_ca_telemetry_decoder_gs::~glonass_l2_ca_telemetry_decoder_gs()
             catch (const std::exception &ex)
                 {
                     LOG(WARNING) << "Exception in destructor closing the dump file " << ex.what();
+                }
+            if (pos == 0)
+                {
+                    if (!tlm_remove_file(d_dump_filename))
+                        {
+                            LOG(WARNING) << "Error deleting temporary file";
+                        }
+                }
+        }
+    if (d_dump && (pos != 0) && d_dump_mat)
+        {
+            save_tlm_matfile(d_dump_filename);
+            if (d_remove_dat)
+                {
+                    if (!tlm_remove_file(d_dump_filename))
+                        {
+                            LOG(WARNING) << "Error deleting temporary file";
+                        }
                 }
         }
 }
@@ -118,8 +143,11 @@ void glonass_l2_ca_telemetry_decoder_gs::decode_string(const double *frame_symbo
 
     // 1. Transform from symbols to bits
     std::string bi_binary_code;
+    bi_binary_code.reserve(frame_length / GLONASS_GNAV_TELEMETRY_SYMBOLS_PER_BIT);
     std::string relative_code;
+    relative_code.reserve(GLONASS_GNAV_STRING_BITS);
     std::string data_bits;
+    data_bits.reserve(GLONASS_GNAV_STRING_BITS + 1);
 
     // Group samples into bi-binary code
     for (int32_t i = 0; i < (frame_length); i++)
@@ -189,7 +217,7 @@ void glonass_l2_ca_telemetry_decoder_gs::decode_string(const double *frame_symbo
             // get object for this SV (mandatory)
             const std::shared_ptr<Glonass_Gnav_Utc_Model> tmp_obj = std::make_shared<Glonass_Gnav_Utc_Model>(d_nav.get_utc_model());
             this->message_port_pub(pmt::mp("telemetry"), pmt::make_any(tmp_obj));
-            LOG(INFO) << "GLONASS GNAV UTC Model have been received in channel" << d_channel << " from satellite " << d_satellite;
+            LOG(INFO) << "GLONASS GNAV UTC Model data have been received in channel" << d_channel << " from satellite " << d_satellite;
             std::cout << TEXT_CYAN << "New GLONASS L2 GNAV message received in channel " << d_channel << ": UTC model parameters from satellite " << d_satellite << TEXT_RESET << '\n';
         }
     if (d_nav.have_new_almanac() == true)
@@ -197,7 +225,7 @@ void glonass_l2_ca_telemetry_decoder_gs::decode_string(const double *frame_symbo
             const uint32_t slot_nbr = d_nav.get_alm_satellite_slot_number();
             const std::shared_ptr<Glonass_Gnav_Almanac> tmp_obj = std::make_shared<Glonass_Gnav_Almanac>(d_nav.get_almanac(slot_nbr));
             this->message_port_pub(pmt::mp("telemetry"), pmt::make_any(tmp_obj));
-            LOG(INFO) << "GLONASS GNAV Almanac have been received in channel" << d_channel << " in slot number " << slot_nbr;
+            LOG(INFO) << "GLONASS GNAV Almanac data have been received in channel" << d_channel << " in slot number " << slot_nbr;
             std::cout << TEXT_CYAN << "New GLONASS L2 GNAV almanac received in channel " << d_channel << " from satellite " << d_satellite << TEXT_RESET << '\n';
         }
     // 5. Update satellite information on system
@@ -230,7 +258,6 @@ void glonass_l2_ca_telemetry_decoder_gs::set_channel(int32_t channel)
                 {
                     try
                         {
-                            d_dump_filename = "telemetry";
                             d_dump_filename.append(std::to_string(d_channel));
                             d_dump_filename.append(".dat");
                             d_dump_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -410,12 +437,17 @@ int glonass_l2_ca_telemetry_decoder_gs::general_work(int noutput_items __attribu
                 {
                     double tmp_double;
                     uint64_t tmp_ulong_int;
+                    int32_t tmp_int;
                     tmp_double = d_TOW_at_current_symbol;
                     d_dump_file.write(reinterpret_cast<char *>(&tmp_double), sizeof(double));
                     tmp_ulong_int = current_symbol.Tracking_sample_counter;
                     d_dump_file.write(reinterpret_cast<char *>(&tmp_ulong_int), sizeof(uint64_t));
                     tmp_double = 0;
                     d_dump_file.write(reinterpret_cast<char *>(&tmp_double), sizeof(double));
+                    tmp_int = (current_symbol.Prompt_I > 0.0 ? 1 : -1);
+                    d_dump_file.write(reinterpret_cast<char *>(&tmp_int), sizeof(int32_t));
+                    tmp_int = static_cast<int32_t>(current_symbol.PRN);
+                    d_dump_file.write(reinterpret_cast<char *>(&tmp_int), sizeof(int32_t));
                 }
             catch (const std::ifstream::failure &e)
                 {

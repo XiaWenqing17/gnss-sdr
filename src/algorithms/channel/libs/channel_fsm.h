@@ -5,9 +5,9 @@
  *          Antonio Ramos, 2017. antonio.ramos(at)cttc.es
  *          Luis Esteve,   2011. luis(at)epsilon-formacion.com
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_CHANNEL_FSM_H
@@ -30,6 +30,12 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
+
+/** \addtogroup Channel
+ * \{ */
+/** \addtogroup Channel_libs channel_libs
+ * Library with utilities for a GNSS Channel.
+ * \{ */
 
 
 /*!
@@ -77,4 +83,7 @@ private:
     uint32_t state_;
 };
 
+
+/** \} */
+/** \} */
 #endif  // GNSS_SDR_CHANNEL_FSM_H

@@ -18,9 +18,9 @@
  *     by M. Burgis (10/03/08)
  *  4. Some fixes and improvements for Linux and macOS
  *     by C. Fernandez (22/10/17)
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2013-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2013-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -29,7 +29,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 
@@ -53,8 +53,10 @@ DEFINE_bool(show_plots, true, "Show plots on screen. Disable for non-interactive
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
 // defined for 32 and 64-bit environments
+// clang-format off
 #include <io.h>              // for _access(), _mktemp()
 #define GP_MAX_TMP_FILES 27  // 27 temporary files it's Microsoft restriction
+// clang-format on
 #elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__APPLE__)
 // all UNIX-like OSs (Linux, *BSD, macOS, Solaris, ...)
 #include <unistd.h>  // for access(), mkstemp()

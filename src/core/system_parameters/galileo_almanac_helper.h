@@ -3,9 +3,9 @@
  * \brief  Interface of a Galileo ALMANAC storage helper
  * \author Javier Arribas, 2013. jarribas(at)cttc.es
  * \author Mara Branzanti 2013. mara.branzanti(at)gmail.com
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  *
- * Copyright (C) 2010-2019  (see AUTHORS file for a list of contributors)
+ * Copyright (C) 2010-2020  (see AUTHORS file for a list of contributors)
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * -------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  */
 
 #ifndef GNSS_SDR_GALILEO_ALMANAC_HELPER_H
@@ -22,6 +22,12 @@
 
 #include "galileo_almanac.h"
 #include <cstdint>
+
+/** \addtogroup Core
+ * \{ */
+/** \addtogroup System_Parameters
+ * \{ */
+
 
 /*!
  * \brief This class is a storage for the GALILEO ALMANAC data as described in GALILEO ICD
@@ -91,4 +97,7 @@ public:
     int32_t E5a_HS_10{};
 };
 
-#endif
+
+/** \} */
+/** \} */
+#endif  // GNSS_SDR_GALILEO_ALMANAC_HELPER_H
